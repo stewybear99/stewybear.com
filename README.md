@@ -21,3 +21,5 @@ letterboxd: {
 - Output directory: `/`
 
 Le site fonctionne sans framework, donc Cloudflare peut servir directement `index.html`, `styles.css` et `script.js`.
+
+## GitHub Pages
