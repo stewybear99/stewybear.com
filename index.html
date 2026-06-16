@@ -5,175 +5,334 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="La maison interactive de Stewybear, avec ses reseaux sociaux."
+      content="La maison pixel art de Stewybear, au coin du feu, avec tous ses réseaux sociaux."
     />
-    <title>Stewybear</title>
+    <title>Stewybear — au coin du feu</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23161019'/%3E%3Crect x='3' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='10' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='3' y='4' width='10' height='8' fill='%239b6237'/%3E%3Crect x='5' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='9' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='6' y='9' width='4' height='3' fill='%23d7a166'/%3E%3Crect x='7' y='10' width='2' height='1' fill='%23170f0b'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@500;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="world" aria-label="Maison interactive de Stewybear">
+    <main class="world" aria-label="La maison pixel art de Stewybear">
+      <!-- Intro : fondu pixel avant la révélation de la pièce -->
       <section class="intro" aria-hidden="true">
-        <div class="forest forest-back"></div>
-        <div class="forest forest-mid"></div>
-        <div class="forest forest-front"></div>
-        <div class="intro-house">
-          <span></span>
-        </div>
+        <div class="intro-glow"></div>
+        <p class="intro-url">stewybear.com</p>
+        <h1 class="intro-title">STEWYBEAR</h1>
+        <p class="intro-hint">au coin du feu</p>
       </section>
 
-      <section class="scene" aria-label="Salon interactif">
-        <div class="sky">
-          <div class="cloud cloud-a"></div>
-          <div class="cloud cloud-b"></div>
-          <div class="moon"></div>
+      <section class="scene" aria-label="Le salon de Stewybear">
+        <!-- Forêt de nuit autour de la maison -->
+        <div class="forest" aria-hidden="true">
+          <span class="forest-sky"></span>
+          <span class="forest-moon"></span>
+          <span class="ridge far"></span>
+          <span class="ridge near"></span>
+          <span class="pine a"></span>
+          <span class="pine b"></span>
+          <span class="pine c"></span>
+          <span class="pine d"></span>
+          <span class="pine e"></span>
+          <span class="pine f"></span>
         </div>
-        <div class="scene-forest scene-forest-back"></div>
-        <div class="scene-forest scene-forest-front"></div>
 
-        <div class="house">
-          <div class="roof">
-            <div class="chimney"></div>
+        <div class="room">
+          <div class="wall"></div>
+          <div class="floor"></div>
+
+          <!-- Fenêtre de nuit -->
+          <div class="window">
+            <span class="moon"></span>
+            <span class="star s1"></span>
+            <span class="star s2"></span>
+            <span class="star s3"></span>
+            <span class="star s4"></span>
+            <span class="tree-line"></span>
           </div>
-          <div class="room">
-            <header class="room-header">
-              <p>stewybear.com</p>
-              <h1>Stewybear</h1>
-            </header>
 
-            <a
-              class="hotspot tv"
-              data-network="letterboxd"
-              href="#"
-              aria-label="Ouvrir Letterboxd"
-            >
-              <span class="screen">
-                <span class="screen-shine"></span>
-                <span class="movie-bars"></span>
-              </span>
-              <span class="stand"></span>
-            </a>
+          <!-- Guirlande lumineuse -->
+          <div class="garland" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
 
-            <button
-              class="hotspot pc"
-              type="button"
-              data-desk-trigger
-              aria-label="Zoomer sur le bureau"
-            >
-              <span class="desk"></span>
-              <span class="monitor">
-                <span class="youtube-play"></span>
-              </span>
-              <span class="keyboard"></span>
-            </button>
+          <!-- Bibliothèque -->
+          <div class="bookshelf" aria-hidden="true">
+            <span class="b1"></span><span class="b2"></span><span class="b3"></span>
+            <span class="b4"></span><span class="b5"></span><span class="b6"></span>
+          </div>
 
-            <a
-              class="hotspot chess"
-              data-network="chess"
-              href="#"
-              aria-label="Ouvrir Chess.com"
-            >
-              <span class="board">
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-              </span>
-              <span class="piece king"></span>
-              <span class="piece pawn"></span>
-            </a>
+          <!-- Plante -->
+          <div class="plant" aria-hidden="true">
+            <span class="pot"></span>
+            <span class="leaf l1"></span>
+            <span class="leaf l2"></span>
+            <span class="leaf l3"></span>
+          </div>
 
-            <button
-              class="hotspot headset"
-              type="button"
-              data-desk-trigger
-              aria-label="Zoomer sur le bureau"
-            >
-              <span class="band"></span>
-              <span class="ear ear-left"></span>
-              <span class="ear ear-right"></span>
-              <span class="mic"></span>
-            </button>
+          <!-- Cheminée : cœur de la pièce, source de lumière -->
+          <div class="fireplace" aria-hidden="true">
+            <span class="mantel"></span>
+            <span class="hearth"></span>
+            <span class="firebox"></span>
+            <span class="logs"></span>
+            <span class="fire">
+              <span class="flame f1"></span>
+              <span class="flame f2"></span>
+              <span class="flame f3"></span>
+              <span class="ember"></span>
+            </span>
+            <span class="frame"></span>
+          </div>
 
-            <div class="stewy" data-state="idle" aria-hidden="true">
-              <div class="drop-shadow"></div>
-              <div class="body">
-                <span class="ear left"></span>
-                <span class="ear right"></span>
-                <span class="head">
-                  <span class="face">
-                    <span class="eye left"></span>
-                    <span class="eye right"></span>
-                    <span class="snout">
-                      <span></span>
-                    </span>
-                  </span>
+          <!-- TV + pouf : Letterboxd -->
+          <a
+            class="hotspot tv"
+            data-network="letterboxd"
+            href="#"
+            aria-label="Ouvrir Letterboxd"
+          >
+            <span class="tv-stand"></span>
+            <span class="tv-screen">
+              <span class="movie">
+                <span class="movie-moon"></span>
+                <span class="movie-stars"></span>
+                <span class="movie-hills"></span>
+                <span class="et-bike">
+                  <span class="et-wheel back"></span>
+                  <span class="et-wheel front"></span>
+                  <span class="et-frame"></span>
+                  <span class="et-bar"></span>
+                  <span class="et-seat"></span>
+                  <span class="et-basket"></span>
+                  <span class="et-rider"></span>
                 </span>
-                <span class="belly"></span>
-                <span class="arm left"></span>
-                <span class="arm right"></span>
-                <span class="foot left"></span>
-                <span class="foot right"></span>
-              </div>
-            </div>
+              </span>
+              <span class="tv-shine"></span>
+            </span>
+            <span class="tv-foot"></span>
+          </a>
+          <div class="pouf" aria-hidden="true"></div>
+          <div class="popcorn" aria-hidden="true">
+            <span class="pc-pops">
+              <span class="kernel k1"></span>
+              <span class="kernel k2"></span>
+              <span class="kernel k3"></span>
+            </span>
+            <span class="pc-cup"></span>
+          </div>
 
-            <div class="label" aria-live="polite">
-              <span>Survole un objet</span>
-            </div>
+          <!-- Bureau : zoom (YouTube / Steam / Discord) -->
+          <button
+            class="hotspot desk-zone"
+            type="button"
+            data-desk-trigger
+            aria-label="Zoomer sur le bureau de Stewy"
+          >
+            <span class="desk-top"></span>
+            <span class="desk-monitor"></span>
+            <span class="desk-keys"></span>
+            <span class="desk-cup"></span>
+            <span class="hang-headset">
+              <span class="hh-band"></span>
+              <span class="hh-ear"></span>
+            </span>
+          </button>
+
+          <!-- Tapis + fauteuil + table d'échecs : Chess.com -->
+          <div class="rug" aria-hidden="true"></div>
+          <div class="armchair" aria-hidden="true">
+            <span class="ac-back"></span>
+            <span class="ac-seat"></span>
+            <span class="ac-armL"></span>
+            <span class="ac-armR"></span>
+          </div>
+          <a
+            class="hotspot chess"
+            data-network="chess"
+            href="#"
+            aria-label="Ouvrir Chess.com"
+          >
+            <span class="chess-table"></span>
+            <span class="board"></span>
+            <span class="pieces">
+              <span class="cp dark king"   style="left:38%; top:52%"></span>
+              <span class="cp dark knight" style="left:64%; top:50%"></span>
+              <span class="cp dark pawn"   style="left:26%; top:56%"></span>
+              <span class="cp light queen" style="left:46%; top:78%"></span>
+              <span class="cp light bishop" style="left:70%; top:72%"></span>
+              <span class="cp light pawn"  style="left:28%; top:82%"></span>
+            </span>
+          </a>
+
+          <!-- Couche lumière + obscurité (clair-obscur du feu) -->
+          <div class="light-layer" aria-hidden="true">
+            <span class="firelight"></span>
+            <span class="vignette"></span>
+          </div>
+
+          <!-- Stewy -->
+          <div class="stewy" data-state="idle" aria-hidden="true">
+            <span class="stewy-shadow"></span>
+            <span class="body">
+              <span class="ear left"></span>
+              <span class="ear right"></span>
+              <span class="head">
+                <span class="eye left"></span>
+                <span class="eye right"></span>
+                <span class="snout"></span>
+                <span class="nose"></span>
+              </span>
+              <span class="belly"></span>
+              <span class="arm left"></span>
+              <span class="arm right"></span>
+              <span class="foot left"></span>
+              <span class="foot right"></span>
+              <span class="headset-overlay"></span>
+              <span class="held-corn"></span>
+              <span class="sweat" aria-hidden="true">
+                <span class="drop d1"></span>
+                <span class="drop d2"></span>
+                <span class="drop d3"></span>
+                <span class="drop d4"></span>
+              </span>
+            </span>
+          </div>
+
+          <!-- Titre -->
+          <header class="room-header">
+            <p>stewybear.com</p>
+            <h1>Stewybear</h1>
+          </header>
+
+          <!-- Label contextuel -->
+          <div class="label" aria-live="polite">
+            <span>Survole un objet de la pièce</span>
           </div>
         </div>
 
-        <nav class="quick-links" aria-label="Reseaux sociaux">
-          <a data-link="letterboxd" href="#">Letterboxd</a>
-          <a data-link="youtube" href="#">YouTube</a>
-          <a data-link="steam" href="#">Steam</a>
-          <a data-link="chess" href="#">Chess.com</a>
-          <a data-link="discord" href="#">Discord</a>
+        <!-- Barre de réseaux -->
+        <nav class="quick-links" aria-label="Réseaux sociaux de Stewybear">
+          <a class="ql letterboxd" data-link="letterboxd" href="#">
+            <span class="ql-ico lb-ico" aria-hidden="true"></span>
+            <span>Letterboxd</span>
+          </a>
+          <a class="ql youtube" data-link="youtube" href="#">
+            <span class="ql-ico yt-ico" aria-hidden="true"></span>
+            <span>YouTube</span>
+          </a>
+          <a class="ql steam" data-link="steam" href="#">
+            <span class="ql-ico st-ico" aria-hidden="true"></span>
+            <span>Steam</span>
+          </a>
+          <a class="ql chess" data-link="chess" href="#">
+            <span class="ql-ico ch-ico" aria-hidden="true"></span>
+            <span>Chess.com</span>
+          </a>
+          <button class="ql discord" type="button" data-copy="stewybear99">
+            <span class="ql-ico dc-ico" aria-hidden="true"></span>
+            <span class="ql-discord-text">Discord</span>
+          </button>
         </nav>
       </section>
 
-      <section class="desk-view" aria-label="Bureau de Stewybear" aria-hidden="true">
-        <button class="desk-close" type="button" aria-label="Retour au salon">Retour</button>
+      <!-- Vue bureau (overlay) -->
+      <section class="desk-view" aria-label="Le bureau de Stewybear" aria-hidden="true">
+        <button class="desk-close" type="button" aria-label="Retour au salon">‹ Retour</button>
         <div class="desk-scene">
-          <div class="desk-monitor">
-            <div class="desk-screen">
-              <a class="screen-option screen-youtube" data-link="youtube" href="#">
-                <span class="option-icon play-icon"></span>
+          <div class="dv-monitor">
+            <div class="dv-screen">
+              <a class="dv-option dv-youtube" data-link="youtube" href="#">
+                <span class="dv-ico yt-ico" aria-hidden="true"></span>
                 <span>YouTube</span>
               </a>
-              <a class="screen-option screen-steam" data-link="steam" href="#">
-                <span class="option-icon steam-icon"></span>
+              <a class="dv-option dv-steam" data-link="steam" href="#">
+                <span class="dv-ico st-ico" aria-hidden="true"></span>
                 <span>Steam</span>
               </a>
             </div>
-            <span class="desk-monitor-neck"></span>
-            <span class="desk-monitor-base"></span>
+            <span class="dv-neck"></span>
+            <span class="dv-base"></span>
           </div>
 
-          <div class="desktop">
-            <a class="desk-headset" data-link="discord" href="#" aria-label="Ouvrir Discord">
-              <span class="desk-headset-band"></span>
-              <span class="desk-headset-ear left"></span>
-              <span class="desk-headset-ear right"></span>
-              <span class="desk-headset-mic"></span>
-            </a>
-            <div class="mousepad">
-              <span class="mouse"></span>
+          <div class="dv-desktop">
+            <button class="dv-headset" type="button" data-copy="stewybear99">
+              <span class="hs-band"></span>
+              <span class="hs-cushion"></span>
+              <span class="hs-arm left"></span>
+              <span class="hs-arm right"></span>
+              <span class="hs-cup left"><span class="hs-light"></span></span>
+              <span class="hs-cup right"><span class="hs-light"></span></span>
+              <span class="hs-mic"></span>
+              <span class="hs-mic-tip"></span>
+              <span class="dv-headset-label">Copier le pseudo Discord</span>
+            </button>
+            <div class="dv-mousepad">
+              <span class="dv-mouse">
+                <span class="m-btn left"></span>
+                <span class="m-btn right"></span>
+                <span class="m-wheel"></span>
+                <span class="m-rgb"></span>
+                <span class="m-cable"></span>
+                <span class="dv-paw" aria-hidden="true">
+                  <span class="paw-pad"></span>
+                  <span class="paw-toe t1"></span>
+                  <span class="paw-toe t2"></span>
+                  <span class="paw-toe t3"></span>
+                  <span class="paw-toe t4"></span>
+                </span>
+              </span>
             </div>
-            <div class="desk-keyboard">
+            <div class="dv-keyboard">
               <span></span><span></span><span></span><span></span><span></span>
               <span></span><span></span><span></span><span></span><span></span>
               <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span class="space"></span>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- Easter egg : mini-jeu de la cheminée -->
+      <section class="fire-game" aria-hidden="true" aria-label="Mini-jeu de la cheminée">
+        <button class="fg-close" type="button" aria-label="Quitter le jeu">✕</button>
+        <div class="fg-stage">
+          <canvas class="fg-canvas" width="360" height="520"></canvas>
+          <p class="fg-banner"></p>
+          <div class="fg-hud"><span class="fg-score-label">Score</span> <span class="fg-score">0</span></div>
+          <div class="fg-over" hidden>
+            <p class="fg-over-title">Game Over</p>
+            <p class="fg-over-score"></p>
+            <button class="fg-retry" type="button">Rejouer</button>
+            <button class="fg-quit" type="button">Quitter</button>
+          </div>
+        </div>
+        <p class="fg-hint">← → · ↑</p>
+      </section>
+
+      <!-- Bouton son -->
+      <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Couper le son">🔊</button>
+
+      <!-- Sélecteur de langue -->
+      <div class="lang-switch" role="group" aria-label="Langue">
+        <button type="button" data-lang="fr" class="is-active">FR</button>
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="es">ES</button>
+      </div>
     </main>
+    <script src="audio.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

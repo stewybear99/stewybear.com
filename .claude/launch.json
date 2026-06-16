@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "C:\\Users\\Victor René\\AppData\\Local\\Microsoft\\WinGet\\Packages\\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe\\mise\\bin\\mise.exe",
+      "runtimeArgs": ["exec", "node@lts", "--", "node", ".claude/server.js"],
+      "port": 8123
+    }
+  ]
+}
