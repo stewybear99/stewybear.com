@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="La maison interactive de Stewybear, avec ses reseaux sociaux."
+    />
+    <title>Stewybear</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="world" aria-label="Maison interactive de Stewybear">
+      <section class="intro" aria-hidden="true">
+        <div class="forest forest-back"></div>
+        <div class="forest forest-mid"></div>
+        <div class="forest forest-front"></div>
+        <div class="intro-house">
+          <span></span>
+        </div>
+      </section>
+
+      <section class="scene" aria-label="Salon interactif">
+        <div class="sky">
+          <div class="cloud cloud-a"></div>
+          <div class="cloud cloud-b"></div>
+          <div class="moon"></div>
+        </div>
+        <div class="scene-forest scene-forest-back"></div>
+        <div class="scene-forest scene-forest-front"></div>
+
+        <div class="house">
+          <div class="roof">
+            <div class="chimney"></div>
+          </div>
+          <div class="room">
+            <header class="room-header">
+              <p>stewybear.com</p>
+              <h1>Stewybear</h1>
+            </header>
+
+            <a
+              class="hotspot tv"
+              data-network="letterboxd"
+              href="#"
+              aria-label="Ouvrir Letterboxd"
+            >
+              <span class="screen">
+                <span class="screen-shine"></span>
+                <span class="movie-bars"></span>
+              </span>
+              <span class="stand"></span>
+            </a>
+
+            <button
+              class="hotspot pc"
+              type="button"
+              data-desk-trigger
+              aria-label="Zoomer sur le bureau"
+            >
+              <span class="desk"></span>
+              <span class="monitor">
+                <span class="youtube-play"></span>
+              </span>
+              <span class="keyboard"></span>
+            </button>
+
+            <a
+              class="hotspot chess"
+              data-network="chess"
+              href="#"
+              aria-label="Ouvrir Chess.com"
+            >
+              <span class="board">
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+              </span>
+              <span class="piece king"></span>
+              <span class="piece pawn"></span>
+            </a>
+
+            <button
+              class="hotspot headset"
+              type="button"
+              data-desk-trigger
+              aria-label="Zoomer sur le bureau"
+            >
+              <span class="band"></span>
+              <span class="ear ear-left"></span>
+              <span class="ear ear-right"></span>
+              <span class="mic"></span>
+            </button>
+
+            <div class="stewy" data-state="idle" aria-hidden="true">
+              <div class="drop-shadow"></div>
+              <div class="body">
+                <span class="ear left"></span>
+                <span class="ear right"></span>
+                <span class="head">
+                  <span class="face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                    <span class="snout">
+                      <span></span>
+                    </span>
+                  </span>
+                </span>
+                <span class="belly"></span>
+                <span class="arm left"></span>
+                <span class="arm right"></span>
+                <span class="foot left"></span>
+                <span class="foot right"></span>
+              </div>
+            </div>
+
+            <div class="label" aria-live="polite">
+              <span>Survole un objet</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="quick-links" aria-label="Reseaux sociaux">
+          <a data-link="letterboxd" href="#">Letterboxd</a>
+          <a data-link="youtube" href="#">YouTube</a>
+          <a data-link="steam" href="#">Steam</a>
+          <a data-link="chess" href="#">Chess.com</a>
+          <a data-link="discord" href="#">Discord</a>
+        </nav>
+      </section>
+
+      <section class="desk-view" aria-label="Bureau de Stewybear" aria-hidden="true">
+        <button class="desk-close" type="button" aria-label="Retour au salon">Retour</button>
+        <div class="desk-scene">
+          <div class="desk-monitor">
+            <div class="desk-screen">
+              <a class="screen-option screen-youtube" data-link="youtube" href="#">
+                <span class="option-icon play-icon"></span>
+                <span>YouTube</span>
+              </a>
+              <a class="screen-option screen-steam" data-link="steam" href="#">
+                <span class="option-icon steam-icon"></span>
+                <span>Steam</span>
+              </a>
+            </div>
+            <span class="desk-monitor-neck"></span>
+            <span class="desk-monitor-base"></span>
+          </div>
+
+          <div class="desktop">
+            <a class="desk-headset" data-link="discord" href="#" aria-label="Ouvrir Discord">
+              <span class="desk-headset-band"></span>
+              <span class="desk-headset-ear left"></span>
+              <span class="desk-headset-ear right"></span>
+              <span class="desk-headset-mic"></span>
+            </a>
+            <div class="mousepad">
+              <span class="mouse"></span>
+            </div>
+            <div class="desk-keyboard">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
