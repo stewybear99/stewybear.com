@@ -41,6 +41,7 @@ const I18N = {
     retry: "Rejouer",
     quit: "Quitter",
     overScore: "Score : %s",
+    credit: "Développé par Stewybear",
   },
   en: {
     introHint: "by the fireside",
@@ -70,6 +71,7 @@ const I18N = {
     retry: "Play again",
     quit: "Quit",
     overScore: "Score: %s",
+    credit: "Made by Stewybear",
   },
   es: {
     introHint: "junto al fuego",
@@ -99,6 +101,7 @@ const I18N = {
     retry: "Jugar otra vez",
     quit: "Salir",
     overScore: "Puntuación: %s",
+    credit: "Desarrollado por Stewybear",
   },
 };
 
@@ -379,6 +382,9 @@ function applyLang(next) {
 
   const headsetLabelEl = document.querySelector(".dv-headset-label");
   if (headsetLabelEl) headsetLabelEl.textContent = t("headsetLabel");
+
+  const creditText = document.querySelector(".credit-text");
+  if (creditText) creditText.textContent = t("credit");
 
   if (fgClose) fgClose.setAttribute("aria-label", t("ariaQuitGame"));
   if (fgScoreLabel) fgScoreLabel.textContent = t("scoreLabel");
