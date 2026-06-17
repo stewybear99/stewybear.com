@@ -101,13 +101,52 @@ button {
   inset: 0;
   z-index: 40;
   display: grid;
+  grid-template-areas: "stack";
   place-content: center;
   justify-items: center;
-  gap: 0.4rem;
   text-align: center;
   background: var(--night-0);
   pointer-events: none;
-  animation: introFade 2.8s ease 1.6s forwards;
+  animation: introFade 1.1s ease 4.7s forwards;
+}
+
+/* Les deux temps de l'intro se superposent dans la même cellule */
+.intro-studio,
+.intro-main {
+  grid-area: stack;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+/* Temps 1 : carton studio « STEWYBEAR ENTERTAINMENT » */
+.intro-studio {
+  opacity: 0;
+  animation: studioCard 3.1s ease forwards;
+}
+.intro-studio-name {
+  position: relative;
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(1.1rem, 4.4vw, 2.2rem);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--cream);
+  text-shadow: 0 4px 0 var(--fire-0), 0 0 22px rgba(255, 150, 60, 0.45);
+}
+.intro-studio-sub {
+  position: relative;
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--fire-3);
+}
+
+/* Temps 2 : le titre du site */
+.intro-main {
+  opacity: 0;
+  animation: introMainIn 0.8s ease 3.3s forwards;
 }
 
 .intro-glow {
@@ -156,7 +195,7 @@ button {
   place-items: center;
   padding: clamp(0.6rem, 2vw, 1.4rem);
   opacity: 0;
-  animation: sceneReveal 1s ease 2.6s forwards;
+  animation: sceneReveal 1s ease 5.2s forwards;
 }
 
 /* ----------------------------------------------------------
@@ -2324,17 +2363,141 @@ button {
   font-weight: 600;
 }
 
+.fg-best {
+  position: absolute;
+  left: 8px;
+  top: 36px;
+  padding: 4px 8px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.8);
+  color: var(--fire-3);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .fg-over {
   position: absolute;
   inset: 0;
   display: grid;
-  place-content: center;
+  align-content: center;
   justify-items: center;
-  gap: 10px;
-  background: rgba(8, 5, 6, 0.78);
+  gap: 8px;
+  padding: 14px 12px;
+  overflow-y: auto;
+  background: rgba(8, 5, 6, 0.86);
   text-align: center;
 }
 .fg-over[hidden] { display: none; }
+.fg-newbest {
+  margin: 0;
+  color: var(--fire-3);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.7rem, 3.2vw, 0.95rem);
+  animation: newBestPulse 0.9s steps(2) infinite;
+}
+.fg-newbest[hidden] { display: none; }
+@keyframes newBestPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Formulaire d'envoi du score */
+.fg-submit {
+  display: flex;
+  gap: 6px;
+  width: min(100%, 18rem);
+  margin: 2px 0;
+}
+.fg-submit[hidden] { display: none; }
+.fg-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.92);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.fg-name:focus-visible { outline: none; border-color: var(--fire-2); }
+.fg-name:disabled { opacity: 0.7; }
+.fg-send {
+  flex: 0 0 auto;
+  min-height: 2.4rem;
+  padding: 8px 12px;
+  border: 3px solid var(--fire-0);
+  background: var(--fire-2);
+  color: #2a1000;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.fg-send:hover,
+.fg-send:focus-visible { outline: none; filter: brightness(1.12); }
+.fg-send:disabled { cursor: default; filter: none; opacity: 0.85; }
+
+/* Classement mondial */
+.fg-board {
+  width: min(100%, 18rem);
+}
+.fg-board-title {
+  margin: 4px 0 6px;
+  color: var(--cream);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.fg-board-title[hidden] { display: none; }
+.fg-board-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+  counter-reset: rank;
+}
+.fg-board-list li {
+  counter-increment: rank;
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 2px solid var(--outline);
+  background: rgba(20, 16, 22, 0.7);
+  color: var(--cream);
+  font-size: 0.85rem;
+}
+.fg-board-list li::before {
+  content: counter(rank);
+  color: var(--fire-3);
+  font-weight: 700;
+  text-align: right;
+}
+.fg-board-list li:nth-child(1) { border-color: var(--fire-2); }
+.fg-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.fg-row-score { font-weight: 700; color: var(--fire-3); }
+.fg-board-status {
+  margin: 6px 0 0;
+  color: var(--wood-4);
+  font-size: 0.85rem;
+}
+.fg-board-status[hidden] { display: none; }
+
+.fg-over-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
 .fg-over-title {
   margin: 0;
   font-family: "Press Start 2P", monospace;
@@ -2372,6 +2535,17 @@ button {
    ---------------------------------------------------------- */
 @keyframes introFade {
   to { opacity: 0; visibility: hidden; }
+}
+@keyframes studioCard {
+  0% { opacity: 0; transform: scale(1.04); }
+  16% { opacity: 1; transform: scale(1); }
+  68% { opacity: 1; transform: scale(1); }
+  90% { opacity: 0; transform: scale(0.99); }
+  100% { opacity: 0; }
+}
+@keyframes introMainIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @keyframes sceneReveal {
   from { opacity: 0; transform: scale(1.03); }
@@ -2506,6 +2680,9 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .intro { animation: introFade 0.001ms ease 2s forwards; }
+  /* Mouvement réduit : on saute le carton studio, on garde un enchaînement bref */
+  .intro { animation: introFade 0.001ms ease 1.4s forwards; }
+  .intro-main { opacity: 1; }
+  .scene { animation: sceneReveal 0.001ms ease 1.6s forwards; }
   .firelight { opacity: 0.95; }
 }

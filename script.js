@@ -41,6 +41,18 @@ const I18N = {
     retry: "Rejouer",
     quit: "Quitter",
     overScore: "Score : %s",
+    introStudioSub: "présente",
+    bestLabel: "Record",
+    overBest: "Record : %s",
+    newBest: "Nouveau record !",
+    boardTitle: "Classement mondial",
+    namePlaceholder: "Ton pseudo",
+    sendBtn: "Envoyer",
+    sending: "Envoi…",
+    sent: "Score envoyé !",
+    boardLoading: "Chargement du classement…",
+    boardError: "Classement indisponible",
+    boardEmpty: "Sois le premier à marquer !",
     credit: "Développé par Stewybear",
   },
   en: {
@@ -71,6 +83,18 @@ const I18N = {
     retry: "Play again",
     quit: "Quit",
     overScore: "Score: %s",
+    introStudioSub: "presents",
+    bestLabel: "Best",
+    overBest: "Best: %s",
+    newBest: "New best!",
+    boardTitle: "World leaderboard",
+    namePlaceholder: "Your name",
+    sendBtn: "Submit",
+    sending: "Sending…",
+    sent: "Score submitted!",
+    boardLoading: "Loading leaderboard…",
+    boardError: "Leaderboard unavailable",
+    boardEmpty: "Be the first to score!",
     credit: "Made by Stewybear",
   },
   es: {
@@ -101,6 +125,18 @@ const I18N = {
     retry: "Jugar otra vez",
     quit: "Salir",
     overScore: "Puntuación: %s",
+    introStudioSub: "presenta",
+    bestLabel: "Récord",
+    overBest: "Récord: %s",
+    newBest: "¡Nuevo récord!",
+    boardTitle: "Clasificación mundial",
+    namePlaceholder: "Tu nombre",
+    sendBtn: "Enviar",
+    sending: "Enviando…",
+    sent: "¡Puntuación enviada!",
+    boardLoading: "Cargando la clasificación…",
+    boardError: "Clasificación no disponible",
+    boardEmpty: "¡Sé el primero en puntuar!",
     credit: "Desarrollado por Stewybear",
   },
 };
@@ -369,6 +405,8 @@ function applyLang(next) {
 
   const hint = document.querySelector(".intro-hint");
   if (hint) hint.textContent = t("introHint");
+  const studioSub = document.querySelector(".intro-studio-sub");
+  if (studioSub) studioSub.textContent = t("introStudioSub");
 
   const tv = document.querySelector(".hotspot.tv");
   if (tv) tv.setAttribute("aria-label", t("ariaLetterboxd"));
@@ -388,9 +426,14 @@ function applyLang(next) {
 
   if (fgClose) fgClose.setAttribute("aria-label", t("ariaQuitGame"));
   if (fgScoreLabel) fgScoreLabel.textContent = t("scoreLabel");
+  if (fgBestLabel) fgBestLabel.textContent = t("bestLabel");
   if (fgOverTitle) fgOverTitle.textContent = t("gameOver");
   if (fgRetry) fgRetry.textContent = t("retry");
   if (fgQuit) fgQuit.textContent = t("quit");
+  if (fgBoardTitle) fgBoardTitle.textContent = t("boardTitle");
+  if (fgNewBest) fgNewBest.textContent = t("newBest");
+  if (fgName) fgName.placeholder = t("namePlaceholder");
+  if (fgSend && !fgSend.disabled) fgSend.textContent = t("sendBtn");
 
   // Rafraîchit le message contextuel selon l'état courant
   if (deskView.getAttribute("aria-hidden") === "false") {
@@ -417,12 +460,55 @@ const fgCtx = fgCanvas ? fgCanvas.getContext("2d") : null;
 const fgBanner = document.querySelector(".fg-banner");
 const fgScore = document.querySelector(".fg-score");
 const fgScoreLabel = document.querySelector(".fg-score-label");
+const fgBestScore = document.querySelector(".fg-best-score");
+const fgBestLabel = document.querySelector(".fg-best-label");
 const fgOver = document.querySelector(".fg-over");
 const fgOverTitle = document.querySelector(".fg-over-title");
 const fgOverScore = document.querySelector(".fg-over-score");
+const fgOverBest = document.querySelector(".fg-over-best");
+const fgNewBest = document.querySelector(".fg-newbest");
+const fgSubmit = document.querySelector(".fg-submit");
+const fgName = document.querySelector(".fg-name");
+const fgSend = document.querySelector(".fg-send");
+const fgBoardTitle = document.querySelector(".fg-board-title");
+const fgBoardList = document.querySelector(".fg-board-list");
+const fgBoardStatus = document.querySelector(".fg-board-status");
 const fgRetry = document.querySelector(".fg-retry");
 const fgQuit = document.querySelector(".fg-quit");
 const fgClose = document.querySelector(".fg-close");
+
+/* --- Meilleur score (persistant) + pseudo mémorisé --- */
+let bestScore = 0;
+try {
+  bestScore = parseInt(localStorage.getItem("stewy-best"), 10) || 0;
+} catch (e) {
+  bestScore = 0;
+}
+function saveBest(value) {
+  bestScore = value;
+  try {
+    localStorage.setItem("stewy-best", String(value));
+  } catch (e) {
+    /* ignore */
+  }
+}
+function refreshBestHud() {
+  if (fgBestScore) fgBestScore.textContent = String(bestScore);
+}
+function lastName() {
+  try {
+    return localStorage.getItem("stewy-name") || "";
+  } catch (e) {
+    return "";
+  }
+}
+function rememberName(name) {
+  try {
+    localStorage.setItem("stewy-name", name);
+  } catch (e) {
+    /* ignore */
+  }
+}
 
 const FIRE_THRESHOLD = 5;
 let fireClicks = 0;
@@ -523,6 +609,7 @@ function resetGame() {
   }
   player = { x: GW / 2 - PW / 2, y: groundY - PH, w: PW, h: PH, vy: 0, onGround: true };
   if (fgScore) fgScore.textContent = "0";
+  refreshBestHud();
 }
 
 function findSupport() {
@@ -692,15 +779,125 @@ function startFireGame() {
   rafId = requestAnimationFrame(gameLoop);
 }
 
+async function loadBoard() {
+  if (!fgBoardList || !fgBoardStatus) return;
+  const board = window.Leaderboard;
+  if (!board || !board.enabled) {
+    // Classement mondial non configuré : on masque la section proprement
+    if (fgBoardTitle) fgBoardTitle.hidden = true;
+    fgBoardList.innerHTML = "";
+    fgBoardStatus.textContent = "";
+    fgBoardStatus.hidden = true;
+    return;
+  }
+  if (fgBoardTitle) fgBoardTitle.hidden = false;
+  fgBoardStatus.hidden = false;
+  fgBoardStatus.textContent = t("boardLoading");
+  fgBoardList.innerHTML = "";
+  try {
+    const rows = await board.top(10);
+    fgBoardList.innerHTML = "";
+    if (!rows.length) {
+      fgBoardStatus.textContent = t("boardEmpty");
+      return;
+    }
+    fgBoardStatus.textContent = "";
+    fgBoardStatus.hidden = true;
+    rows.forEach((row) => {
+      const li = document.createElement("li");
+      const name = document.createElement("span");
+      name.className = "fg-row-name";
+      name.textContent = row.name;
+      const val = document.createElement("span");
+      val.className = "fg-row-score";
+      val.textContent = String(row.score);
+      li.append(name, val);
+      fgBoardList.appendChild(li);
+    });
+  } catch (e) {
+    fgBoardStatus.hidden = false;
+    fgBoardStatus.textContent = t("boardError");
+  }
+}
+
 function endGame() {
   running = false;
   cancelAnimationFrame(rafId);
   renderGame();
+
+  const finalScore = Math.floor(score);
+  const isNewBest = finalScore > bestScore;
+  if (isNewBest) saveBest(finalScore);
+  refreshBestHud();
+
   if (fgOverTitle) fgOverTitle.textContent = t("gameOver");
-  if (fgOverScore) fgOverScore.textContent = t("overScore").replace("%s", String(Math.floor(score)));
+  if (fgOverScore) fgOverScore.textContent = t("overScore").replace("%s", String(finalScore));
+  if (fgOverBest) fgOverBest.textContent = t("overBest").replace("%s", String(bestScore));
+  if (fgNewBest) {
+    fgNewBest.textContent = t("newBest");
+    fgNewBest.hidden = !isNewBest;
+  }
   if (fgRetry) fgRetry.textContent = t("retry");
   if (fgQuit) fgQuit.textContent = t("quit");
+
+  // Formulaire d'envoi du score (uniquement si le classement est dispo et score > 0)
+  const board = window.Leaderboard;
+  if (fgSubmit) {
+    const canSubmit = board && board.enabled && finalScore > 0;
+    fgSubmit.hidden = !canSubmit;
+    if (canSubmit) {
+      pendingScore = finalScore;
+      scoreSubmitted = false;
+      if (fgName) {
+        fgName.disabled = false;
+        fgName.value = lastName();
+      }
+      if (fgSend) {
+        fgSend.disabled = false;
+        fgSend.textContent = t("sendBtn");
+      }
+    }
+  }
+
   if (fgOver) fgOver.hidden = false;
+  loadBoard();
+}
+
+let pendingScore = 0;
+let scoreSubmitted = false;
+
+if (fgSubmit) {
+  fgSubmit.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const board = window.Leaderboard;
+    if (!board || !board.enabled || scoreSubmitted) return;
+    const name = (fgName ? fgName.value : "").trim().slice(0, 16);
+    if (!name) {
+      if (fgName) fgName.focus();
+      return;
+    }
+    rememberName(name);
+    if (fgSend) {
+      fgSend.disabled = true;
+      fgSend.textContent = t("sending");
+    }
+    try {
+      await board.submit(name, pendingScore);
+      scoreSubmitted = true;
+      if (fgSend) fgSend.textContent = t("sent");
+      if (fgName) fgName.disabled = true;
+      await loadBoard();
+    } catch (e) {
+      if (fgSend) {
+        fgSend.disabled = false;
+        fgSend.textContent = t("sendBtn");
+      }
+      if (fgBoardStatus) {
+        fgBoardStatus.hidden = false;
+        fgBoardStatus.textContent = t("boardError");
+      }
+    }
+  });
 }
 
 function closeFireGame() {

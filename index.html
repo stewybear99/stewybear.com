@@ -25,9 +25,15 @@
       <!-- Intro : fondu pixel avant la révélation de la pièce -->
       <section class="intro" aria-hidden="true">
         <div class="intro-glow"></div>
-        <p class="intro-url">stewybear.com</p>
-        <h1 class="intro-title">STEWYBEAR</h1>
-        <p class="intro-hint">au coin du feu</p>
+        <div class="intro-studio">
+          <p class="intro-studio-name">STEWYBEAR<br />ENTERTAINMENT</p>
+          <p class="intro-studio-sub">présente</p>
+        </div>
+        <div class="intro-main">
+          <p class="intro-url">stewybear.com</p>
+          <h1 class="intro-title">STEWYBEAR</h1>
+          <p class="intro-hint">au coin du feu</p>
+        </div>
       </section>
 
       <section class="scene" aria-label="Le salon de Stewybear">
@@ -312,11 +318,36 @@
           <canvas class="fg-canvas" width="360" height="520"></canvas>
           <p class="fg-banner"></p>
           <div class="fg-hud"><span class="fg-score-label">Score</span> <span class="fg-score">0</span></div>
+          <div class="fg-best"><span class="fg-best-label">Record</span> <span class="fg-best-score">0</span></div>
           <div class="fg-over" hidden>
             <p class="fg-over-title">Game Over</p>
             <p class="fg-over-score"></p>
-            <button class="fg-retry" type="button">Rejouer</button>
-            <button class="fg-quit" type="button">Quitter</button>
+            <p class="fg-over-best"></p>
+            <p class="fg-newbest" hidden></p>
+
+            <form class="fg-submit" hidden>
+              <input
+                class="fg-name"
+                type="text"
+                maxlength="16"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Ton pseudo"
+                aria-label="Ton pseudo"
+              />
+              <button class="fg-send" type="submit">Envoyer</button>
+            </form>
+
+            <div class="fg-board">
+              <p class="fg-board-title">Classement mondial</p>
+              <ol class="fg-board-list"></ol>
+              <p class="fg-board-status"></p>
+            </div>
+
+            <div class="fg-over-actions">
+              <button class="fg-retry" type="button">Rejouer</button>
+              <button class="fg-quit" type="button">Quitter</button>
+            </div>
           </div>
         </div>
         <p class="fg-hint">← → · ↑</p>
@@ -339,6 +370,7 @@
       </p>
     </main>
     <script src="audio.js"></script>
+    <script src="leaderboard.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
