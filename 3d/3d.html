@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="La maison de Stewybear en 3D, au coin du feu, avec tous ses réseaux sociaux."
+    />
+    <title>Stewybear — au coin du feu (3D)</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23161019'/%3E%3Crect x='3' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='10' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='3' y='4' width='10' height='8' fill='%239b6237'/%3E%3Crect x='5' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='9' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='6' y='9' width='4' height='3' fill='%23d7a166'/%3E%3Crect x='7' y='10' width='2' height='1' fill='%23170f0b'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <!-- On réutilise la feuille de style de la 2D pour toute l'interface (intro, barre de réseaux, bureau, jeu…) -->
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      /* Spécifique 3D : le canvas WebGL remplace la pièce pixel et passe derrière l'UI. */
+      #app { position: fixed; inset: 0; z-index: 0; }
+      /* Le canvas est la couche interactive (survol + clic des objets 3D). L'overlay
+         HTML doit donc laisser passer les événements, sauf sur les vrais contrôles. */
+      .world, .scene { pointer-events: none; }
+      #app,
+      .quick-links .ql,
+      .sound-toggle,
+      .lang-switch button,
+      .back2d,
+      .credit a { pointer-events: auto; }
+      #scene3d {
+        width: 100%;
+        height: 100%;
+        display: block;
+        image-rendering: pixelated; /* rendu volontairement « chunky » pour garder l'esprit pixel */
+        cursor: default;
+      }
+      /* On remonte le label contextuel pour qu'il ne chevauche pas la barre de réseaux. */
+      .label { bottom: clamp(5rem, 10vw, 6.5rem); }
+      .back2d {
+        position: fixed;
+        left: clamp(0.6rem, 2vw, 1.2rem);
+        top: clamp(0.6rem, 2vw, 1.2rem);
+        z-index: 14;
+        padding: 6px 12px;
+        border: 3px solid var(--outline);
+        background: rgba(20, 16, 22, 0.82);
+        color: var(--cream);
+        font-family: "Pixelify Sans", system-ui, sans-serif;
+        font-size: 0.85rem;
+        text-decoration: none;
+      }
+      .back2d:hover { background: var(--cream); color: var(--outline); }
+    </style>
+  </head>
+  <body>
+    <main class="world" aria-label="La maison 3D de Stewybear">
+      <!-- La pièce 3D (canvas WebGL) sert de décor, à la place de la pièce pixel 2D -->
+      <div id="app"><canvas id="scene3d"></canvas></div>
+
+      <!-- Intro : fondu pixel avant la révélation de la pièce (CSS, identique à la 2D) -->
+      <section class="intro" aria-hidden="true">
+        <div class="intro-glow"></div>
+        <div class="intro-studio">
+          <p class="intro-studio-name">STEWYBEAR<br />ENTERTAINMENT</p>
+          <p class="intro-studio-sub">présente</p>
+        </div>
+        <div class="intro-main">
+          <p class="intro-url">stewybear.com</p>
+          <h1 class="intro-title">STEWYBEAR</h1>
+          <p class="intro-hint">au coin du feu</p>
+        </div>
+      </section>
+
+      <section class="scene" aria-label="Le salon 3D de Stewybear">
+        <!-- Label contextuel -->
+        <div class="label" aria-live="polite">
+          <span>Survole un objet de la pièce</span>
+        </div>
+
+        <!-- Barre de réseaux -->
+        <nav class="quick-links" aria-label="Réseaux sociaux de Stewybear">
+          <a class="ql letterboxd" data-link="letterboxd" href="#">
+            <span class="ql-ico lb-ico" aria-hidden="true"></span>
+            <span>Letterboxd</span>
+          </a>
+          <a class="ql youtube" data-link="youtube" href="#">
+            <span class="ql-ico yt-ico" aria-hidden="true"></span>
+            <span>YouTube</span>
+          </a>
+          <a class="ql steam" data-link="steam" href="#">
+            <span class="ql-ico st-ico" aria-hidden="true"></span>
+            <span>Steam</span>
+          </a>
+          <a class="ql chess" data-link="chess" href="#">
+            <span class="ql-ico ch-ico" aria-hidden="true"></span>
+            <span>Chess.com</span>
+          </a>
+          <button class="ql discord" type="button" data-copy="stewybear99">
+            <span class="ql-ico dc-ico" aria-hidden="true"></span>
+            <span class="ql-discord-text">Discord</span>
+          </button>
+        </nav>
+      </section>
+
+      <!-- Vue bureau (overlay) : YouTube / Steam / Discord -->
+      <section class="desk-view" aria-label="Le bureau de Stewybear" aria-hidden="true">
+        <button class="desk-close" type="button" aria-label="Retour au salon">‹ Retour</button>
+        <div class="desk-scene">
+          <div class="dv-monitor">
+            <div class="dv-screen">
+              <a class="dv-option dv-youtube" data-link="youtube" href="#">
+                <span class="dv-ico yt-ico" aria-hidden="true"></span>
+                <span>YouTube</span>
+              </a>
+              <a class="dv-option dv-steam" data-link="steam" href="#">
+                <span class="dv-ico st-ico" aria-hidden="true"></span>
+                <span>Steam</span>
+              </a>
+            </div>
+            <span class="dv-neck"></span>
+            <span class="dv-base"></span>
+          </div>
+
+          <div class="dv-desktop">
+            <button class="dv-headset" type="button" data-copy="stewybear99">
+              <span class="hs-band"></span>
+              <span class="hs-cushion"></span>
+              <span class="hs-arm left"></span>
+              <span class="hs-arm right"></span>
+              <span class="hs-cup left"><span class="hs-light"></span></span>
+              <span class="hs-cup right"><span class="hs-light"></span></span>
+              <span class="hs-mic"></span>
+              <span class="hs-mic-tip"></span>
+              <span class="dv-headset-label">Copier le pseudo Discord</span>
+            </button>
+            <div class="dv-mousepad">
+              <span class="dv-mouse">
+                <span class="m-btn left"></span>
+                <span class="m-btn right"></span>
+                <span class="m-wheel"></span>
+                <span class="m-rgb"></span>
+                <span class="m-cable"></span>
+                <span class="dv-paw" aria-hidden="true">
+                  <span class="paw-pad"></span>
+                  <span class="paw-toe t1"></span>
+                  <span class="paw-toe t2"></span>
+                  <span class="paw-toe t3"></span>
+                  <span class="paw-toe t4"></span>
+                </span>
+              </span>
+            </div>
+            <div class="dv-keyboard">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span class="space"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Easter egg : mini-jeu de la cheminée -->
+      <section class="fire-game" aria-hidden="true" aria-label="Mini-jeu de la cheminée">
+        <button class="fg-close" type="button" aria-label="Quitter le jeu">✕</button>
+        <div class="fg-stage">
+          <canvas class="fg-canvas" width="360" height="520"></canvas>
+          <p class="fg-banner"></p>
+          <div class="fg-hud"><span class="fg-score-label">Score</span> <span class="fg-score">0</span></div>
+          <div class="fg-best"><span class="fg-best-label">Record</span> <span class="fg-best-score">0</span></div>
+          <div class="fg-over" hidden>
+            <p class="fg-over-title">Game Over</p>
+            <p class="fg-over-score"></p>
+            <p class="fg-over-best"></p>
+            <p class="fg-newbest" hidden></p>
+
+            <form class="fg-submit" hidden>
+              <input
+                class="fg-name"
+                type="text"
+                maxlength="16"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Ton pseudo"
+                aria-label="Ton pseudo"
+              />
+              <button class="fg-send" type="submit">Envoyer</button>
+            </form>
+
+            <div class="fg-board">
+              <p class="fg-board-title">Classement mondial</p>
+              <ol class="fg-board-list"></ol>
+              <p class="fg-board-status"></p>
+            </div>
+
+            <div class="fg-over-actions">
+              <button class="fg-retry" type="button">Rejouer</button>
+              <button class="fg-quit" type="button">Quitter</button>
+            </div>
+          </div>
+        </div>
+        <p class="fg-hint">← → · ↑</p>
+      </section>
+
+      <!-- Bouton son -->
+      <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Couper le son">🔊</button>
+
+      <!-- Sélecteur de langue -->
+      <div class="lang-switch" role="group" aria-label="Langue">
+        <button type="button" data-lang="fr" class="is-active">FR</button>
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="es">ES</button>
+      </div>
+
+      <!-- Retour à la version 2D -->
+      <a class="back2d" href="../index.html">← version 2D</a>
+
+      <!-- Crédit / contact -->
+      <p class="credit">
+        <span class="credit-text">Développé par Stewybear</span>
+        · <a href="mailto:stewybear14@gmail.com">stewybear14@gmail.com</a>
+      </p>
+    </main>
+
+    <script>
+      // Filet de sécurité : si la 3D ne démarre pas (WebGL absent, ou page ouverte en file://),
+      // on prévient l'utilisateur dans le label contextuel.
+      window.setTimeout(() => {
+        if (window.__stewy3dReady) return;
+        const msg = document.querySelector(".label span");
+        if (!msg) return;
+        msg.textContent =
+          location.protocol === "file:"
+            ? "Ouvre cette page via http(s) (serveur local ou stewybear.com), pas en double-cliquant le fichier."
+            : "La 3D ne démarre pas ici. Essaie la version 2D ou un navigateur récent.";
+        msg.style.color = "#ffb24d";
+      }, 5000);
+    </script>
+    <script src="../audio.js"></script>
+    <script src="../leaderboard.js"></script>
+    <script src="site3d.js"></script>
+    <script type="module" src="scene3d.js"></script>
+  </body>
+</html>

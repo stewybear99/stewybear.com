@@ -1,0 +1,13 @@
+{
+  "name": "stewybear-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site pixel art de Stewybear (statique) + prototype pièce 3D",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "three": "0.160.0"
+  }
+}
