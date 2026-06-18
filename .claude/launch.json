@@ -4,7 +4,7 @@
     {
       "name": "static",
       "runtimeExecutable": "C:\\Users\\Victor René\\AppData\\Local\\Microsoft\\WinGet\\Packages\\jdx.mise_Microsoft.Winget.Source_8wekyb3d8bbwe\\mise\\bin\\mise.exe",
-      "runtimeArgs": ["exec", "node@lts", "--", "node", ".claude/server.js"],
+      "runtimeArgs": ["exec", "node@lts", "--", "node", ".claude/server.cjs"],
       "port": 8123
     }
   ]

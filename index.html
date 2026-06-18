@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="La maison pixel art de Stewybear, au coin du feu, avec tous ses réseaux sociaux."
+      content="La maison de Stewybear en 3D, au coin du feu, avec tous ses réseaux sociaux."
     />
-    <title>Stewybear — au coin du feu</title>
+    <title>Stewybear — au coin du feu (3D)</title>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23161019'/%3E%3Crect x='3' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='10' y='2' width='3' height='3' fill='%239b6237'/%3E%3Crect x='3' y='4' width='10' height='8' fill='%239b6237'/%3E%3Crect x='5' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='9' y='7' width='2' height='2' fill='%23170f0b'/%3E%3Crect x='6' y='9' width='4' height='3' fill='%23d7a166'/%3E%3Crect x='7' y='10' width='2' height='1' fill='%23170f0b'/%3E%3C/svg%3E"
@@ -18,11 +18,51 @@
       href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
+    <!-- On réutilise la feuille de style de la 2D pour toute l'interface (intro, barre de réseaux, bureau, jeu…) -->
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Spécifique 3D : le canvas WebGL remplace la pièce pixel et passe derrière l'UI. */
+      #app { position: fixed; inset: 0; z-index: 0; }
+      /* Le canvas est la couche interactive (survol + clic des objets 3D). L'overlay
+         HTML doit donc laisser passer les événements, sauf sur les vrais contrôles. */
+      .world, .scene { pointer-events: none; }
+      #app,
+      .quick-links .ql,
+      .sound-toggle,
+      .lang-switch button,
+      .back2d,
+      .credit a { pointer-events: auto; }
+      #scene3d {
+        width: 100%;
+        height: 100%;
+        display: block;
+        image-rendering: pixelated; /* rendu volontairement « chunky » pour garder l'esprit pixel */
+        cursor: default;
+      }
+      /* On remonte le label contextuel pour qu'il ne chevauche pas la barre de réseaux. */
+      .label { bottom: clamp(5rem, 10vw, 6.5rem); }
+      .back2d {
+        position: fixed;
+        left: clamp(0.6rem, 2vw, 1.2rem);
+        top: clamp(0.6rem, 2vw, 1.2rem);
+        z-index: 14;
+        padding: 6px 12px;
+        border: 3px solid var(--outline);
+        background: rgba(20, 16, 22, 0.82);
+        color: var(--cream);
+        font-family: "Pixelify Sans", system-ui, sans-serif;
+        font-size: 0.85rem;
+        text-decoration: none;
+      }
+      .back2d:hover { background: var(--cream); color: var(--outline); }
+    </style>
   </head>
   <body>
-    <main class="world" aria-label="La maison pixel art de Stewybear">
-      <!-- Intro : fondu pixel avant la révélation de la pièce -->
+    <main class="world" aria-label="La maison 3D de Stewybear">
+      <!-- La pièce 3D (canvas WebGL) sert de décor, à la place de la pièce pixel 2D -->
+      <div id="app"><canvas id="scene3d"></canvas></div>
+
+      <!-- Intro : fondu pixel avant la révélation de la pièce (CSS, identique à la 2D) -->
       <section class="intro" aria-hidden="true">
         <div class="intro-glow"></div>
         <div class="intro-studio">
@@ -36,194 +76,10 @@
         </div>
       </section>
 
-      <section class="scene" aria-label="Le salon de Stewybear">
-        <!-- Forêt de nuit autour de la maison -->
-        <div class="forest" aria-hidden="true">
-          <span class="forest-sky"></span>
-          <span class="forest-moon"></span>
-          <span class="ridge far"></span>
-          <span class="ridge near"></span>
-          <span class="pine a"></span>
-          <span class="pine b"></span>
-          <span class="pine c"></span>
-          <span class="pine d"></span>
-          <span class="pine e"></span>
-          <span class="pine f"></span>
-        </div>
-
-        <div class="room">
-          <div class="wall"></div>
-          <div class="floor"></div>
-
-          <!-- Fenêtre de nuit -->
-          <div class="window">
-            <span class="moon"></span>
-            <span class="star s1"></span>
-            <span class="star s2"></span>
-            <span class="star s3"></span>
-            <span class="star s4"></span>
-            <span class="tree-line"></span>
-          </div>
-
-          <!-- Guirlande lumineuse -->
-          <div class="garland" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-
-          <!-- Bibliothèque -->
-          <div class="bookshelf" aria-hidden="true">
-            <span class="b1"></span><span class="b2"></span><span class="b3"></span>
-            <span class="b4"></span><span class="b5"></span><span class="b6"></span>
-          </div>
-
-          <!-- Plante -->
-          <div class="plant" aria-hidden="true">
-            <span class="pot"></span>
-            <span class="leaf l1"></span>
-            <span class="leaf l2"></span>
-            <span class="leaf l3"></span>
-          </div>
-
-          <!-- Cheminée : cœur de la pièce, source de lumière -->
-          <div class="fireplace" aria-hidden="true">
-            <span class="mantel"></span>
-            <span class="hearth"></span>
-            <span class="firebox"></span>
-            <span class="logs"></span>
-            <span class="fire">
-              <span class="flame f1"></span>
-              <span class="flame f2"></span>
-              <span class="flame f3"></span>
-              <span class="ember"></span>
-            </span>
-            <span class="frame"></span>
-          </div>
-
-          <!-- TV + pouf : Letterboxd -->
-          <a
-            class="hotspot tv"
-            data-network="letterboxd"
-            href="#"
-            aria-label="Ouvrir Letterboxd"
-          >
-            <span class="tv-stand"></span>
-            <span class="tv-screen">
-              <span class="movie">
-                <span class="movie-moon"></span>
-                <span class="movie-stars"></span>
-                <span class="movie-hills"></span>
-                <span class="et-bike">
-                  <span class="et-wheel back"></span>
-                  <span class="et-wheel front"></span>
-                  <span class="et-frame"></span>
-                  <span class="et-bar"></span>
-                  <span class="et-seat"></span>
-                  <span class="et-basket"></span>
-                  <span class="et-rider"></span>
-                </span>
-              </span>
-              <span class="tv-shine"></span>
-            </span>
-            <span class="tv-foot"></span>
-          </a>
-          <div class="pouf" aria-hidden="true"></div>
-          <div class="popcorn" aria-hidden="true">
-            <span class="pc-pops">
-              <span class="kernel k1"></span>
-              <span class="kernel k2"></span>
-              <span class="kernel k3"></span>
-            </span>
-            <span class="pc-cup"></span>
-          </div>
-
-          <!-- Bureau : zoom (YouTube / Steam / Discord) -->
-          <button
-            class="hotspot desk-zone"
-            type="button"
-            data-desk-trigger
-            aria-label="Zoomer sur le bureau de Stewy"
-          >
-            <span class="desk-top"></span>
-            <span class="desk-monitor"></span>
-            <span class="desk-keys"></span>
-            <span class="desk-cup"></span>
-            <span class="hang-headset">
-              <span class="hh-band"></span>
-              <span class="hh-ear"></span>
-            </span>
-          </button>
-
-          <!-- Tapis + fauteuil + table d'échecs : Chess.com -->
-          <div class="rug" aria-hidden="true"></div>
-          <div class="armchair" aria-hidden="true">
-            <span class="ac-back"></span>
-            <span class="ac-seat"></span>
-            <span class="ac-armL"></span>
-            <span class="ac-armR"></span>
-          </div>
-          <a
-            class="hotspot chess"
-            data-network="chess"
-            href="#"
-            aria-label="Ouvrir Chess.com"
-          >
-            <span class="chess-table"></span>
-            <span class="board"></span>
-            <span class="pieces">
-              <span class="cp dark king"   style="left:38%; top:52%"></span>
-              <span class="cp dark knight" style="left:64%; top:50%"></span>
-              <span class="cp dark pawn"   style="left:26%; top:56%"></span>
-              <span class="cp light queen" style="left:46%; top:78%"></span>
-              <span class="cp light bishop" style="left:70%; top:72%"></span>
-              <span class="cp light pawn"  style="left:28%; top:82%"></span>
-            </span>
-          </a>
-
-          <!-- Couche lumière + obscurité (clair-obscur du feu) -->
-          <div class="light-layer" aria-hidden="true">
-            <span class="firelight"></span>
-            <span class="vignette"></span>
-          </div>
-
-          <!-- Stewy -->
-          <div class="stewy" data-state="idle" aria-hidden="true">
-            <span class="stewy-shadow"></span>
-            <span class="body">
-              <span class="ear left"></span>
-              <span class="ear right"></span>
-              <span class="head">
-                <span class="eye left"></span>
-                <span class="eye right"></span>
-                <span class="snout"></span>
-                <span class="nose"></span>
-              </span>
-              <span class="belly"></span>
-              <span class="arm left"></span>
-              <span class="arm right"></span>
-              <span class="foot left"></span>
-              <span class="foot right"></span>
-              <span class="headset-overlay"></span>
-              <span class="held-corn"></span>
-              <span class="sweat" aria-hidden="true">
-                <span class="drop d1"></span>
-                <span class="drop d2"></span>
-                <span class="drop d3"></span>
-                <span class="drop d4"></span>
-              </span>
-            </span>
-          </div>
-
-          <!-- Titre -->
-          <header class="room-header">
-            <p>stewybear.com</p>
-            <h1>Stewybear</h1>
-          </header>
-
-          <!-- Label contextuel -->
-          <div class="label" aria-live="polite">
-            <span>Survole un objet de la pièce</span>
-          </div>
+      <section class="scene" aria-label="Le salon 3D de Stewybear">
+        <!-- Label contextuel -->
+        <div class="label" aria-live="polite">
+          <span>Survole un objet de la pièce</span>
         </div>
 
         <!-- Barre de réseaux -->
@@ -251,7 +107,7 @@
         </nav>
       </section>
 
-      <!-- Vue bureau (overlay) -->
+      <!-- Vue bureau (overlay) : YouTube / Steam / Discord -->
       <section class="desk-view" aria-label="Le bureau de Stewybear" aria-hidden="true">
         <button class="desk-close" type="button" aria-label="Retour au salon">‹ Retour</button>
         <div class="desk-scene">
@@ -363,14 +219,33 @@
         <button type="button" data-lang="es">ES</button>
       </div>
 
+      <!-- Retour à la version 2D -->
+      <a class="back2d" href="2d.html">afficher ancienne version</a>
+
       <!-- Crédit / contact -->
       <p class="credit">
         <span class="credit-text">Développé par Stewybear</span>
         · <a href="mailto:stewybear14@gmail.com">stewybear14@gmail.com</a>
       </p>
     </main>
+
+    <script>
+      // Filet de sécurité : si la 3D ne démarre pas (WebGL absent, ou page ouverte en file://),
+      // on prévient l'utilisateur dans le label contextuel.
+      window.setTimeout(() => {
+        if (window.__stewy3dReady) return;
+        const msg = document.querySelector(".label span");
+        if (!msg) return;
+        msg.textContent =
+          location.protocol === "file:"
+            ? "Ouvre cette page via http(s) (serveur local ou stewybear.com), pas en double-cliquant le fichier."
+            : "La 3D ne démarre pas ici. Essaie la version 2D ou un navigateur récent.";
+        msg.style.color = "#ffb24d";
+      }, 5000);
+    </script>
     <script src="audio.js"></script>
     <script src="leaderboard.js"></script>
-    <script src="script.js"></script>
+    <script src="site3d.js"></script>
+    <script type="module" src="scene3d.js"></script>
   </body>
 </html>
