@@ -50,6 +50,8 @@
   --c-steam: #66c0f4;
   --c-chess: #6b9b41;
   --c-discord: #5865f2;
+  --c-github: #f0f0f4;
+  --c-supercell: #1c8cf0;
 
   --focus: #ffe08a;
 }
@@ -1681,6 +1683,8 @@ button {
 .ql.steam:hover, .ql.steam:focus-visible { background: var(--c-steam); color: #05283a; }
 .ql.chess:hover, .ql.chess:focus-visible { background: var(--c-chess); color: #12250a; }
 .ql.discord:hover, .ql.discord:focus-visible { background: var(--c-discord); color: #0a0e30; }
+.ql.github:hover, .ql.github:focus-visible { background: var(--c-github); color: #14181c; }
+.ql.supercell:hover, .ql.supercell:focus-visible { background: var(--c-supercell); color: #fff; }
 
 /* Icônes pixel des marques */
 .ql-ico {
@@ -1770,7 +1774,18 @@ button {
 .dc-ico::before { left: 4px; }
 .dc-ico::after { right: 4px; }
 
+/* Logo GitHub : carré sombre + Octocat blanc, dessiné en SVG (data-URI). */
+.gh-ico {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%231b1f23'/%3E%3Cpath transform='translate(2.4 2.4) scale(0.7)' fill='%23fff' d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Logo Supercell ID : carré bleu + silhouette « profil / carte d'identité » blanche. */
+.sc-ico {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%231c8cf0'/%3E%3Ccircle cx='8' cy='6' r='2.4' fill='%23fff'/%3E%3Crect x='3.6' y='9.8' width='8.8' height='5.6' rx='3.4' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 .ql.discord.copied { background: var(--c-discord); color: #fff; }
+.ql.supercell.copied { background: var(--c-supercell); color: #fff; }
 
 /* ----------------------------------------------------------
    Vue bureau (overlay)
@@ -1840,7 +1855,7 @@ button {
   position: absolute;
   inset: 0 0 16%;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(0.7rem, 2vw, 1.1rem);
   padding: clamp(0.9rem, 2.5vw, 1.4rem);
   border: 6px solid #1b1d26;
@@ -1870,6 +1885,7 @@ button {
 }
 .dv-youtube:hover, .dv-youtube:focus-visible { border-color: var(--c-youtube); background: rgba(255, 61, 53, 0.18); }
 .dv-steam:hover, .dv-steam:focus-visible { border-color: var(--c-steam); background: rgba(102, 192, 244, 0.18); }
+.dv-github:hover, .dv-github:focus-visible { border-color: var(--c-github); background: rgba(240, 240, 244, 0.14); }
 
 .dv-ico {
   position: relative;
@@ -2668,6 +2684,306 @@ button {
   .dv-screen { grid-template-columns: 1fr; }
   .ql span:last-child { font-size: 0.78rem; }
 }
+
+/* ----------------------------------------------------------
+   Mini-jeu « combat sur la Lune » (clic sur la lune)
+   ---------------------------------------------------------- */
+
+/* Transition de zoom : un disque lunaire grossit pour remplir l'écran. */
+.moon-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+}
+.moon-zoom[aria-hidden="false"] { opacity: 1; }
+.moon-zoom-disc {
+  width: 8vmin;
+  height: 8vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, #fff7df 0%, var(--fire-4) 40%, #c9a25a 78%, #9c6a3d 100%);
+  box-shadow: 0 0 0 0.6rem rgba(255, 224, 138, 0.25), 0 0 4rem rgba(255, 224, 138, 0.55);
+  transform: scale(0.4);
+}
+.moon-zoom.is-zooming .moon-zoom-disc {
+  animation: moonZoomIn 700ms steps(8) forwards;
+}
+@keyframes moonZoomIn {
+  0% { transform: scale(0.4); opacity: 0.2; }
+  60% { opacity: 1; }
+  100% { transform: scale(34); opacity: 1; }
+}
+
+/* ----------------------------------------------------------
+   Roguelite « Donjon de la Lune » (clic sur la lune)
+   ---------------------------------------------------------- */
+.moon-rogue {
+  position: absolute;
+  inset: 0;
+  z-index: 36;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: clamp(0.6rem, 2.5vw, 1.4rem);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(143, 182, 255, 0.14), transparent 52%),
+    rgba(5, 5, 11, 0.98);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms steps(3);
+}
+.moon-rogue[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
+
+.mr-close {
+  position: absolute;
+  top: clamp(0.7rem, 2.2vw, 1.2rem);
+  right: clamp(0.7rem, 2.2vw, 1.2rem);
+  z-index: 6;
+  min-width: 2.3rem;
+  min-height: 2.3rem;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.mr-close:hover,
+.mr-close:focus-visible { outline: none; background: var(--cream); color: var(--ink); }
+
+.mr-stage {
+  position: relative;
+  width: min(96vw, 40rem);
+  aspect-ratio: 480 / 360;
+  max-height: 78vh;
+}
+.mr-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  border: 5px solid #2a2740;
+  box-shadow: 0 0 0 3px #0c0a10, 0 18px 40px rgba(0, 0, 0, 0.6);
+  background: #0c0c16;
+}
+
+/* Menus superposés (départ, succès, fin, objet) */
+.mr-menu {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  overflow-y: auto;
+  background: rgba(6, 6, 12, 0.92);
+  text-align: center;
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  color: var(--cream);
+}
+.mr-menu[hidden] { display: none; }
+.mr-title {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.85rem, 4vw, 1.35rem);
+  color: var(--fire-3);
+}
+.mr-sub { margin: 0; color: rgba(255, 233, 192, 0.7); font-size: clamp(0.75rem, 3vw, 0.95rem); }
+.mr-shards { margin: 0; font-size: clamp(0.85rem, 3.4vw, 1.05rem); color: #9fe0ff; }
+.mr-shards-label { color: rgba(255, 233, 192, 0.6); font-size: 0.85em; }
+
+/* Sanctuaire : liste des améliorations permanentes */
+.mr-sanctuary {
+  display: grid;
+  gap: 6px;
+  width: min(92%, 26rem);
+  max-height: 38vh;
+  overflow-y: auto;
+}
+.mr-upg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+}
+.mr-upg:hover:not(:disabled) { background: rgba(40, 32, 44, 0.95); }
+.mr-upg:disabled { opacity: 0.5; cursor: default; }
+.mr-upg-info { display: grid; gap: 1px; }
+.mr-upg-info strong { font-size: 0.9rem; }
+.mr-upg-info small { color: rgba(255, 233, 192, 0.6); font-size: 0.72rem; }
+.mr-upg-cost { color: #9fe0ff; font-size: 0.82rem; white-space: nowrap; }
+
+.mr-menu-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.mr-menu button:not(.mr-upg) {
+  padding: 9px 16px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.mr-play, .mr-retry { background: var(--fire-2) !important; color: #2a1000 !important; border-color: var(--fire-0) !important; }
+.mr-shop { background: #1d3a4a !important; color: #cdeaff !important; border-color: #2f6f8f !important; }
+.mr-menu button:not(.mr-upg):hover,
+.mr-menu button:not(.mr-upg):focus-visible { outline: none; filter: brightness(1.12); }
+
+/* Succès */
+.mr-ach-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: min(92%, 28rem); max-height: 52vh; overflow-y: auto; }
+.mr-ach-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.85);
+  text-align: left;
+  opacity: 0.55;
+}
+.mr-ach-item.is-on { opacity: 1; border-color: #6e4a16; background: rgba(60, 44, 16, 0.55); }
+.mr-ach-ic { font-size: 1.1rem; }
+.mr-ach-item strong { display: block; font-size: 0.9rem; }
+.mr-ach-item small { color: rgba(255, 233, 192, 0.6); font-size: 0.72rem; }
+.mr-ach-progress { margin: 0; color: var(--fire-3); font-family: "Press Start 2P", monospace; font-size: clamp(0.6rem, 2.6vw, 0.8rem); }
+
+/* Écran de fin / objet */
+.mr-over-title { margin: 0; font-family: "Press Start 2P", monospace; font-size: clamp(0.95rem, 4.5vw, 1.4rem); color: var(--fire-2); }
+.mr-over-msg { margin: 0; font-size: clamp(0.85rem, 3.4vw, 1.05rem); }
+.mr-over-reward { margin: 0; color: #9fe0ff; font-family: "Press Start 2P", monospace; font-size: clamp(0.6rem, 2.6vw, 0.8rem); }
+.mr-item-name { margin: 0; color: var(--fire-4); font-size: clamp(0.95rem, 3.6vw, 1.15rem); font-weight: 700; }
+.mr-item-desc { margin: 0; color: rgba(255, 233, 192, 0.8); font-size: clamp(0.8rem, 3vw, 1rem); }
+
+.mr-hint {
+  margin: 0;
+  text-align: center;
+  color: rgba(255, 233, 192, 0.7);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-size: clamp(0.72rem, 2.8vw, 0.92rem);
+}
+
+/* Panneau d'histoire : carte de chapitre + dialogues de mort */
+.mr-story {
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 22px 18px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(120, 150, 255, 0.08), transparent 60%),
+    rgba(5, 6, 12, 0.95);
+}
+.mr-story-kicker {
+  margin: 0;
+  color: var(--fire-3);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.58rem, 2.6vw, 0.78rem);
+  letter-spacing: 0.04em;
+}
+.mr-story-kicker:empty { display: none; }
+.mr-story-title {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--fire-4);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.8rem, 3.4vw, 1.15rem);
+  line-height: 1.5;
+}
+.mr-story-title:empty { display: none; }
+.mr-story-text {
+  margin: 0;
+  max-width: 30rem;
+  color: var(--cream);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-size: clamp(0.9rem, 3.4vw, 1.08rem);
+  line-height: 1.55;
+}
+.mr-story--reveal .mr-story-text { font-style: italic; color: #dfe7ff; }
+.mr-story--reveal { background: radial-gradient(circle at 50% 40%, rgba(120, 230, 140, 0.06), transparent 60%), rgba(4, 8, 6, 0.96); }
+.mr-story-continue {
+  padding: 9px 18px;
+  border: 3px solid var(--fire-0);
+  background: var(--fire-2);
+  color: #2a1000;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.mr-story-continue:hover,
+.mr-story-continue:focus-visible { outline: none; filter: brightness(1.12); }
+
+/* Bouton « passer » d'une cinématique */
+.mr-cine-skip {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 7;
+  padding: 5px 10px;
+  border: 2px solid var(--outline);
+  background: rgba(20, 16, 22, 0.8);
+  color: var(--cream);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.mr-cine-skip[hidden] { display: none; }
+.mr-cine-skip:hover { background: var(--cream); color: var(--ink); }
+
+/* Bouton « succès » dans le hub (visible une fois l'easter egg trouvé) */
+.hub-ach {
+  position: fixed;
+  right: clamp(0.6rem, 2vw, 1.2rem);
+  bottom: clamp(3.6rem, 8vw, 4.6rem);
+  z-index: 14;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.82);
+  color: var(--cream);
+  font-size: 1.05rem;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.hub-ach[hidden] { display: none; }
+.hub-ach:hover { background: var(--cream); }
+
+/* Médaille permanente : Donjon terminé à 100 % */
+.hub-medal {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(0.4rem, 1.6vw, 0.9rem);
+  transform: translateX(-50%);
+  z-index: 13;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #6e4a16;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #fff3cf, #d9a93f 70%, #a06a23);
+  font-size: 1rem;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255, 200, 90, 0.5);
+}
+.hub-medal[hidden] { display: none; }
 
 /* ----------------------------------------------------------
    Accessibilité : mouvement réduit

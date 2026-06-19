@@ -100,9 +100,17 @@
             <span class="ql-ico ch-ico" aria-hidden="true"></span>
             <span>Chess.com</span>
           </a>
+          <a class="ql github" data-link="github" href="#">
+            <span class="ql-ico gh-ico" aria-hidden="true"></span>
+            <span>GitHub</span>
+          </a>
           <button class="ql discord" type="button" data-copy="stewybear99">
             <span class="ql-ico dc-ico" aria-hidden="true"></span>
             <span class="ql-discord-text">Discord</span>
+          </button>
+          <button class="ql supercell" type="button" data-supercell="Stewybear">
+            <span class="ql-ico sc-ico" aria-hidden="true"></span>
+            <span>Supercell ID</span>
           </button>
         </nav>
       </section>
@@ -120,6 +128,10 @@
               <a class="dv-option dv-steam" data-link="steam" href="#">
                 <span class="dv-ico st-ico" aria-hidden="true"></span>
                 <span>Steam</span>
+              </a>
+              <a class="dv-option dv-github" data-link="github" href="#">
+                <span class="dv-ico gh-ico" aria-hidden="true"></span>
+                <span>GitHub</span>
               </a>
             </div>
             <span class="dv-neck"></span>
@@ -209,6 +221,69 @@
         <p class="fg-hint">← → · ↑</p>
       </section>
 
+      <!-- Transition « zoom sur la lune » avant l'ouverture du jeu -->
+      <div class="moon-zoom" aria-hidden="true"><span class="moon-zoom-disc"></span></div>
+
+      <!-- Roguelite : le Donjon de la Lune -->
+      <section class="moon-rogue" aria-hidden="true" aria-label="Donjon de la Lune">
+        <button class="mr-close" type="button" aria-label="Quitter le jeu">✕</button>
+        <div class="mr-stage">
+          <canvas class="mr-canvas" width="480" height="360"></canvas>
+
+          <!-- Menu de départ + sanctuaire (méta-progression) -->
+          <div class="mr-menu mr-start">
+            <h2 class="mr-title">Donjon de la Lune</h2>
+            <p class="mr-sub">ZQSD / WASD pour bouger · Flèches pour tirer</p>
+            <p class="mr-shards">🌙 <span class="mr-shard-count">0</span> <span class="mr-shards-label">éclats de lune</span></p>
+            <div class="mr-sanctuary" aria-label="Sanctuaire — améliorations permanentes"></div>
+            <div class="mr-menu-actions">
+              <button class="mr-play" type="button">Descendre</button>
+              <button class="mr-ach-open" type="button">Succès</button>
+            </div>
+          </div>
+
+          <!-- Panneau des succès -->
+          <div class="mr-menu mr-ach" hidden>
+            <h2 class="mr-title">Succès</h2>
+            <p class="mr-ach-progress"></p>
+            <ul class="mr-ach-list"></ul>
+            <button class="mr-ach-back" type="button">Retour</button>
+          </div>
+
+          <!-- Écran de fin (mort / victoire) -->
+          <div class="mr-menu mr-over" hidden>
+            <h2 class="mr-over-title">Game Over</h2>
+            <p class="mr-over-msg"></p>
+            <p class="mr-over-reward"></p>
+            <div class="mr-menu-actions">
+              <button class="mr-shop" type="button">Boutique</button>
+              <button class="mr-retry" type="button">Rejouer</button>
+              <button class="mr-quit" type="button">Quitter</button>
+            </div>
+          </div>
+
+          <!-- Choix d'objet (sur ramassage) -->
+          <div class="mr-menu mr-item" hidden>
+            <h2 class="mr-title mr-item-title">Objet trouvé</h2>
+            <p class="mr-item-name"></p>
+            <p class="mr-item-desc"></p>
+            <button class="mr-item-take" type="button">Prendre</button>
+          </div>
+
+          <!-- Panneau d'histoire : carte de chapitre / dialogue de mort -->
+          <div class="mr-menu mr-story" hidden>
+            <p class="mr-story-kicker"></p>
+            <h2 class="mr-story-title"></h2>
+            <p class="mr-story-text"></p>
+            <button class="mr-story-continue" type="button">Continuer ▸</button>
+          </div>
+
+          <!-- Bouton « passer » pendant une cinématique -->
+          <button class="mr-cine-skip" type="button" hidden>Passer ▸</button>
+        </div>
+        <p class="mr-hint">ZQSD / WASD : bouger · Flèches : tirer · Échap : pause</p>
+      </section>
+
       <!-- Bouton son -->
       <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Couper le son">🔊</button>
 
@@ -221,6 +296,12 @@
 
       <!-- Retour à la version 2D -->
       <a class="back2d" href="2d.html">afficher ancienne version</a>
+
+      <!-- Succès du Donjon de la Lune : visible une fois l'easter egg trouvé -->
+      <button class="hub-ach" type="button" hidden aria-label="Succès du Donjon de la Lune">🏆</button>
+
+      <!-- Médaille permanente : Donjon de la Lune terminé à 100 % -->
+      <div class="hub-medal" hidden role="img" aria-label="Donjon de la Lune terminé à 100 %">🌙</div>
 
       <!-- Crédit / contact -->
       <p class="credit">
@@ -245,6 +326,7 @@
     </script>
     <script src="audio.js"></script>
     <script src="leaderboard.js"></script>
+    <script src="moon-rogue.js"></script>
     <script src="site3d.js"></script>
     <script type="module" src="scene3d.js"></script>
   </body>

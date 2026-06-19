@@ -14,9 +14,12 @@ const socials = {
   youtube: { label: "YouTube", url: "https://www.youtube.com/@Stewybear-h9v" },
   steam: { label: "Steam", url: "https://steamcommunity.com/profiles/76561199858155106" },
   chess: { label: "Chess.com", url: "https://www.chess.com/az/member/stewybear" },
+  github: { label: "GitHub", url: "https://github.com/stewybear99" },
 };
 
 const DISCORD_PSEUDO = "stewybear99";
+// Supercell ID : pas de page publique, juste un pseudo à copier (comme Discord).
+const SUPERCELL_PSEUDO = "Stewybear";
 
 /* --- Traductions ----------------------------------------- */
 const I18N = {
@@ -25,11 +28,16 @@ const I18N = {
     hover: "Survole un objet de la pièce",
     deskHover: "Clique pour t'installer au bureau",
     deskChoose: "Choisis sur le bureau",
+    moonHover: "Clique sur la lune… si tu l'oses",
     letterboxdAction: "Stewy se pose sur le pouf pour regarder un film sur Letterboxd.",
     youtubeAction: "Stewy s'installe au bureau pour lancer YouTube.",
     steamAction: "Stewy s'installe au bureau pour lancer Steam.",
     chessAction: "Stewy prépare son meilleur coup sur Chess.com.",
+    githubAction: "Stewy file au bureau pour ouvrir son code sur GitHub.",
     discordAction: "Stewy met le casque pour rejoindre Discord.",
+    supercellHover: "Le téléphone de Stewy : clique pour copier son Supercell ID.",
+    supercellCopied: "Supercell ID copié : %s",
+    supercellCopyFail: "Copie impossible — Supercell ID : %s",
     copyOk: "Pseudo Discord copié : %s",
     copyErr: "Copie impossible — pseudo Discord : %s",
     copied: "Copié !",
@@ -43,6 +51,7 @@ const I18N = {
     ariaQuitGame: "Quitter le jeu",
     cruel: "Vous êtes cruel !",
     gameIntro: "Vous voulez jouer à ça ? Bien fait pour vous.",
+    jetpackOn: "🚀 Jetpack débloqué ! Espace pour décoller.",
     gameOver: "Game Over",
     scoreLabel: "Score",
     retry: "Rejouer",
@@ -67,11 +76,16 @@ const I18N = {
     hover: "Hover over something in the room",
     deskHover: "Click to sit down at the desk",
     deskChoose: "Pick something on the desk",
+    moonHover: "Click the moon… if you dare",
     letterboxdAction: "Stewy settles on the pouf to watch a film on Letterboxd.",
     youtubeAction: "Stewy sits at the desk to open YouTube.",
     steamAction: "Stewy sits at the desk to open Steam.",
     chessAction: "Stewy plots his best move on Chess.com.",
+    githubAction: "Stewy heads to the desk to open his code on GitHub.",
     discordAction: "Stewy puts on the headset to join Discord.",
+    supercellHover: "Stewy's phone: click to copy his Supercell ID.",
+    supercellCopied: "Supercell ID copied: %s",
+    supercellCopyFail: "Couldn't copy — Supercell ID: %s",
     copyOk: "Discord username copied: %s",
     copyErr: "Couldn't copy — Discord username: %s",
     copied: "Copied!",
@@ -85,6 +99,7 @@ const I18N = {
     ariaQuitGame: "Quit the game",
     cruel: "You're cruel!",
     gameIntro: "You want to play that? Serves you right.",
+    jetpackOn: "🚀 Jetpack unlocked! Space to blast off.",
     gameOver: "Game Over",
     scoreLabel: "Score",
     retry: "Play again",
@@ -109,11 +124,16 @@ const I18N = {
     hover: "Pasa el cursor sobre algo de la sala",
     deskHover: "Haz clic para sentarte al escritorio",
     deskChoose: "Elige algo en el escritorio",
+    moonHover: "Haz clic en la luna… si te atreves",
     letterboxdAction: "Stewy se acomoda en el puf para ver una película en Letterboxd.",
     youtubeAction: "Stewy se sienta al escritorio para abrir YouTube.",
     steamAction: "Stewy se sienta al escritorio para abrir Steam.",
     chessAction: "Stewy prepara su mejor jugada en Chess.com.",
+    githubAction: "Stewy va al escritorio para abrir su código en GitHub.",
     discordAction: "Stewy se pone los cascos para unirse a Discord.",
+    supercellHover: "El teléfono de Stewy: haz clic para copiar su Supercell ID.",
+    supercellCopied: "Supercell ID copiado: %s",
+    supercellCopyFail: "No se pudo copiar — Supercell ID: %s",
     copyOk: "Usuario de Discord copiado: %s",
     copyErr: "No se pudo copiar — usuario de Discord: %s",
     copied: "¡Copiado!",
@@ -127,6 +147,7 @@ const I18N = {
     ariaQuitGame: "Salir del juego",
     cruel: "¡Eres cruel!",
     gameIntro: "¿Quieres jugar a esto? Te lo mereces.",
+    jetpackOn: "🚀 ¡Jetpack desbloqueado! Espacio para despegar.",
     gameOver: "Game Over",
     scoreLabel: "Puntuación",
     retry: "Jugar otra vez",
@@ -257,6 +278,30 @@ function closeDeskView() {
   setLabel(t("hover"));
 }
 
+/* --- Lune : zoom puis lancement du mini-jeu 2D « combat sur la Lune » --- */
+const moonZoom = document.querySelector(".moon-zoom");
+let moonZoomTimer;
+function openMoonGame() {
+  clearStateTimers();
+  activeNetwork = "idle";
+  bearReact("idle");
+  setLabel(t("moonHover"));
+  // Effet de zoom : un disque lunaire grossit pour remplir l'écran, puis le jeu s'ouvre.
+  window.clearTimeout(moonZoomTimer);
+  if (moonZoom) {
+    moonZoom.setAttribute("aria-hidden", "false");
+    moonZoom.classList.add("is-zooming");
+  }
+  if (window.Sound && Sound.enabled && Sound.jump) Sound.jump();
+  moonZoomTimer = window.setTimeout(() => {
+    if (window.MoonGame) window.MoonGame.open();
+    if (moonZoom) {
+      moonZoom.classList.remove("is-zooming");
+      moonZoom.setAttribute("aria-hidden", "true");
+    }
+  }, 700);
+}
+
 async function copyPseudo(text) {
   try {
     if (navigator.clipboard && window.isSecureContext) {
@@ -298,6 +343,24 @@ function flashCopied(button, ok) {
   }, 1800);
 }
 
+/* --- Téléphone Supercell (posé sur la table d'échecs en 3D) ---
+   Survol : Stewy s'approche de la table. Clic : on copie son Supercell ID
+   dans le presse-papier (même mécanique que le casque Discord), et on
+   affiche la confirmation dans le label contextuel. */
+function hoverSupercell() {
+  setLabel(t("supercellHover"));
+  if (activeNetwork === "supercell") return;
+  activeNetwork = "supercell";
+  clearStateTimers();
+  bearReact("supercell"); // Stewy va prendre son téléphone
+  if (window.Sound) Sound.steps(2);
+}
+
+async function copySupercell() {
+  const ok = await copyPseudo(SUPERCELL_PSEUDO);
+  setLabel((ok ? t("supercellCopied") : t("supercellCopyFail")).replace("%s", SUPERCELL_PSEUDO));
+}
+
 /* --- Barre de réseaux (et options de la vue bureau) --- */
 quickLinks.forEach((link) => {
   const network = link.dataset.link;
@@ -307,6 +370,27 @@ quickLinks.forEach((link) => {
   link.addEventListener("blur", resetStewy);
   // les <a> ouvrent déjà leur href (target _blank) ; rien à intercepter
 });
+
+/* --- GitHub (barre du bas) : au lieu d'ouvrir un onglet, on allume le PC et
+   GitHub apparaît sur l'écran du bureau (vue bureau), à côté de YouTube/Steam. --- */
+const githubLink = document.querySelector(".ql.github");
+if (githubLink) {
+  githubLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    openDeskView();
+  });
+}
+
+/* --- Supercell ID (barre du bas) : au survol, Stewy va prendre son téléphone ;
+   au clic, on copie le Supercell ID (pas de page publique, comme Discord). --- */
+const supercellLink = document.querySelector(".ql.supercell");
+if (supercellLink) {
+  supercellLink.addEventListener("mouseenter", hoverSupercell);
+  supercellLink.addEventListener("focus", hoverSupercell);
+  supercellLink.addEventListener("mouseleave", resetStewy);
+  supercellLink.addEventListener("blur", resetStewy);
+  supercellLink.addEventListener("click", copySupercell);
+}
 
 /* --- Boutons « copier le pseudo Discord » --- */
 copyButtons.forEach((button) => {
@@ -385,6 +469,9 @@ function applyLang(next) {
   if (fgNewBest) fgNewBest.textContent = t("newBest");
   if (fgName) fgName.placeholder = t("namePlaceholder");
   if (fgSend && !fgSend.disabled) fgSend.textContent = t("sendBtn");
+
+  // Le jeu de la lune gère ses propres textes (fichier auto-contenu).
+  if (window.MoonGame) window.MoonGame.setLang(lang);
 
   // Rafraîchit le message contextuel selon l'état courant
   if (deskView && deskView.getAttribute("aria-hidden") === "false") {
@@ -511,6 +598,14 @@ const PH = 30;
 const keys = { left: false, right: false };
 let jumpQueued = false;
 
+/* --- Cheat code : jetpack (3 × « $ » d'affilée, puis barre d'espace) --- */
+const JET_ACCEL = 1.35; // poussée vers le haut (plus forte que la gravité)
+const JET_MAX_UP = 7.5; // vitesse ascensionnelle maximale
+let jetpackUnlocked = false; // débloqué pour la session
+let jetThrust = false; // espace maintenu
+let dollarSeq = 0; // compteur de « $ » consécutifs
+let dollarTimer = 0; // horodatage du dernier « $ »
+
 let running = false;
 let rafId = 0;
 let lastTime = 0;
@@ -548,6 +643,8 @@ function resetGame() {
     platforms.push({ x: rand(8, GW - PLAT_W - 8), y, w: PLAT_W, h: PLAT_H });
   }
   player = { x: GW / 2 - PW / 2, y: groundY - PH, w: PW, h: PH, vy: 0, onGround: true };
+  jetThrust = false;
+  dollarSeq = 0;
   if (fgScore) fgScore.textContent = "0";
   refreshBestHud();
 }
@@ -580,6 +677,13 @@ function updateGame(f) {
   }
   jumpQueued = false;
 
+  // jetpack (cheat) : tant que l'espace est maintenu, on est propulsé vers le haut
+  if (jetpackUnlocked && jetThrust) {
+    player.onGround = false;
+    player.vy -= JET_ACCEL * f;
+    if (player.vy < -JET_MAX_UP) player.vy = -JET_MAX_UP;
+  }
+
   if (player.onGround) {
     const support = findSupport();
     if (support) {
@@ -605,6 +709,12 @@ function updateGame(f) {
     }
   }
 
+  // jetpack : on garde Stewy visible en haut de la cheminée
+  if (player.y < 4) {
+    player.y = 4;
+    if (player.vy < 0) player.vy = 0;
+  }
+
   // recycle les plateformes : on en régénère en haut
   platforms = platforms.filter((p) => p.y < GH + 40);
   let top = topPlatformY();
@@ -626,6 +736,15 @@ function updateGame(f) {
 function drawBear(ctx, x, y) {
   x = Math.round(x);
   y = Math.round(y);
+  // jetpack (cheat) : deux réservoirs dans le dos
+  if (jetpackUnlocked) {
+    ctx.fillStyle = "#8a8f98";
+    ctx.fillRect(x - 4, y + 6, 5, 15);
+    ctx.fillRect(x + PW - 1, y + 6, 5, 15);
+    ctx.fillStyle = "#d8430f";
+    ctx.fillRect(x - 4, y + 6, 5, 3);
+    ctx.fillRect(x + PW - 1, y + 6, 5, 3);
+  }
   // oreilles
   ctx.fillStyle = "#7a4a28";
   ctx.fillRect(x, y - 2, 7, 7);
@@ -671,6 +790,18 @@ function renderGame() {
 
   // joueur
   drawBear(ctx, player.x, player.y);
+
+  // jetpack : jet de flammes sous Stewy quand il propulse
+  if (jetpackUnlocked && jetThrust) {
+    const jx = player.x + PW / 2;
+    const jy = player.y + PH;
+    ctx.fillStyle = "#ffb24d";
+    ctx.fillRect(Math.round(jx - 8), Math.round(jy), 16, 5 + Math.random() * 6);
+    ctx.fillStyle = "#ff7a1a";
+    ctx.fillRect(Math.round(jx - 5), Math.round(jy), 10, 9 + Math.random() * 8);
+    ctx.fillStyle = "#ffe08a";
+    ctx.fillRect(Math.round(jx - 2), Math.round(jy), 4, 6 + Math.random() * 5);
+  }
 
   // feu en bas
   const baseY = GH - fireH;
@@ -867,6 +998,23 @@ if (fgClose) fgClose.addEventListener("click", closeFireGame);
 
 window.addEventListener("keydown", (event) => {
   if (!fireGameOpen()) return;
+
+  // Cheat code : 3 « $ » d'affilée -> jetpack débloqué (pour la session)
+  if (event.key === "$") {
+    const now = performance.now();
+    if (now - dollarTimer > 1200) dollarSeq = 0; // « d'affilée » = sans trop attendre
+    dollarTimer = now;
+    dollarSeq += 1;
+    if (!jetpackUnlocked && dollarSeq >= 3) {
+      jetpackUnlocked = true;
+      dollarSeq = 0;
+      showBanner(t("jetpackOn"));
+      if (window.Sound && Sound.enabled && Sound.jump) Sound.jump();
+    }
+    event.preventDefault();
+    return;
+  }
+
   switch (event.key) {
     case "ArrowLeft":
     case "a":
@@ -880,9 +1028,14 @@ window.addEventListener("keydown", (event) => {
       keys.right = true;
       event.preventDefault();
       break;
-    case "ArrowUp":
     case " ":
     case "Spacebar":
+      // Une fois le jetpack débloqué, l'espace propulse au lieu de sauter.
+      if (jetpackUnlocked) jetThrust = true;
+      else jumpQueued = true;
+      event.preventDefault();
+      break;
+    case "ArrowUp":
     case "w":
     case "W":
       jumpQueued = true;
@@ -908,6 +1061,10 @@ window.addEventListener("keyup", (event) => {
     case "D":
       keys.right = false;
       break;
+    case " ":
+    case "Spacebar":
+      jetThrust = false; // on coupe la poussée du jetpack
+      break;
     default:
       break;
   }
@@ -920,6 +1077,8 @@ window.Stewy3D = {
   // survol d'un objet : met à jour le label contextuel (+ réaction de l'ours)
   hover(network) {
     if (network === "desk") sendStewyToDesk();
+    else if (network === "moon") setLabel(t("moonHover"));
+    else if (network === "supercell") hoverSupercell();
     else makeStewyHop(network);
   },
   reset: resetStewy,
@@ -927,12 +1086,15 @@ window.Stewy3D = {
   activate(network) {
     if (network === "desk") openDeskView();
     else if (network === "fire") pokeFire();
+    else if (network === "moon") openMoonGame();
+    else if (network === "supercell") copySupercell();
     else openExternalUrl(network);
   },
   isOverlayOpen() {
     return (
       fireGameOpen() ||
-      (deskView && deskView.getAttribute("aria-hidden") === "false")
+      (deskView && deskView.getAttribute("aria-hidden") === "false") ||
+      (window.MoonGame && window.MoonGame.isOpen())
     );
   },
 };
@@ -981,8 +1143,10 @@ if (window.Sound) {
     audioUnlocked = true;
     Sound.init();
     Sound.resume();
-    if (!fireGameOpen()) Sound.playHouse();
-    else Sound.playGame();
+    if (window.MoonGame && MoonGame.playCurrentMusic && MoonGame.playCurrentMusic()) {
+      // le donjon joue sa propre musique d'environnement
+    } else if (fireGameOpen()) Sound.playGame();
+    else Sound.playHouse();
   };
   ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
     window.addEventListener(ev, unlockAudio)
@@ -995,7 +1159,9 @@ if (window.Sound) {
       Sound.setEnabled(!Sound.enabled);
       if (Sound.enabled) {
         audioUnlocked = true;
-        if (fireGameOpen()) Sound.playGame();
+        if (window.MoonGame && MoonGame.playCurrentMusic && MoonGame.playCurrentMusic()) {
+          // le donjon joue sa propre musique d'environnement
+        } else if (fireGameOpen()) Sound.playGame();
         else Sound.playHouse();
       } else {
         Sound.stopMusic();

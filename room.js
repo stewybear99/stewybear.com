@@ -120,7 +120,18 @@ export function buildScene(THREE) {
   scene.add(winG);
   box(0.15, 3.2, 3.2, C.ink, 0, 0, 0, winG, { cast: false });
   box(0.1, 2.7, 2.7, C.screen, 0.06, 0, 0, winG, { cast: false, emissive: C.screen, emissiveIntensity: 0.6 });
-  box(0.05, 0.7, 0.7, C.fire4, 0.12, 0.6, 0.6, winG, { cast: false, emissive: C.fire4, emissiveIntensity: 0.8 }); // lune
+  // La lune devient un petit groupe cliquable : elle déclenche le mini-jeu 2D « combat sur la Lune ».
+  const moonGroup = new THREE.Group();
+  moonGroup.position.set(0.12, 0.6, 0.6);
+  winG.add(moonGroup);
+  box(0.05, 0.7, 0.7, C.fire4, 0, 0, 0, moonGroup, { cast: false, emissive: C.fire4, emissiveIntensity: 0.8 }); // lune
+  // Cible de clic/survol invisible mais légèrement plus large, pour viser la lune plus facilement.
+  const moonHit = new THREE.Mesh(
+    boxGeo,
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+  );
+  moonHit.scale.set(0.4, 1.2, 1.2);
+  moonGroup.add(moonHit);
   box(0.16, 2.7, 0.12, C.wood1, 0.04, 0, 0, winG, { cast: false });
   box(0.16, 0.12, 2.7, C.wood1, 0.04, 0, 0, winG, { cast: false });
 
@@ -241,6 +252,34 @@ export function buildScene(THREE) {
   box(0.18, 0.5, 0.18, C.cream, 0.3, 1.55, 0.3, chess, { cast: false });
   tag(chess, "chess", "Chess.com", LINKS.chess);
 
+  // Téléphone de Stewy, posé sur un coin de la table d'échecs.
+  // Objet cliquable à part (il copie le Supercell ID) : comme la lune et la
+  // cheminée, il N'ENTRE PAS dans `interactives` (réservé aux 3 réseaux testés).
+  // Son nom/label et la gestion du clic sont câblés dans scene3d.js / site3d.js.
+  const phone = new THREE.Group();
+  phone.position.set(4.02, 1.34, 3.0); // coin avant-droit du plateau d'échecs
+  phone.rotation.y = -0.4; // posé un peu de travers, l'air vivant
+  scene.add(phone);
+  box(0.32, 0.05, 0.6, C.ink, 0, 0, 0, phone, { cast: false }); // coque
+  box(0.26, 0.03, 0.52, C.steam, 0, 0.035, 0, phone, {
+    cast: false,
+    emissive: C.steam,
+    emissiveIntensity: 0.9,
+  }); // écran allumé
+  box(0.14, 0.02, 0.14, C.fire3, 0, 0.055, -0.12, phone, {
+    cast: false,
+    emissive: C.fire3,
+    emissiveIntensity: 0.9,
+  }); // icône d'appli (carré doré)
+  // Cible de clic invisible, plus large : le téléphone est petit à viser.
+  const phoneHit = new THREE.Mesh(
+    boxGeo,
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+  );
+  phoneHit.scale.set(0.5, 0.5, 0.8);
+  phoneHit.position.set(0, 0.2, 0);
+  phone.add(phoneHit);
+
   // Bibliothèque (déco)
   const shelf = new THREE.Group();
   shelf.position.set(-6.4, 0, 1.5);
@@ -330,10 +369,12 @@ export function buildScene(THREE) {
     letterboxd: { pos: [-3.8, 0, -0.1], look: [-5, 1.8, -3.4], sit: true, sitY: 0.55 },
     desk: { pos: [4.4, 0, -1.4], look: [5, 1.8, -3.2] }, // au bureau
     chess: { pos: [2.4, 0, 2.6], look: [3.6, 1.2, 2.6] }, // à l'échiquier
+    // devant le coin de la table où repose le téléphone : Stewy s'y rend pour le prendre
+    phone: { pos: [2.9, 0, 3.6], look: [4.02, 1.34, 3.0] },
     fire: { pos: [0, 0, -3.7], look: [0, 1.2, -4.8] }, // devant le foyer (easter egg)
   };
 
-  return { scene, camera, interactives, flames, fireLight, bear, fireplace: fp, bearSpots, pouf, popcorn, deskHeadset };
+  return { scene, camera, interactives, flames, fireLight, bear, fireplace: fp, bearSpots, pouf, popcorn, deskHeadset, moon: moonGroup, phone };
 }
 
 /**

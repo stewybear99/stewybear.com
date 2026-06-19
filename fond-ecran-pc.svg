@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img">
+<title>Fond d'écran stewybear — ours sauvage et chaudron de soupe</title>
+<desc>Un ours brun mijote une soupe dans un chaudron au-dessus d'un feu de camp, dans une forêt de nuit éclairée par la lune.</desc>
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#06120c"/>
+<stop offset="0.55" stop-color="#0e2c1c"/>
+<stop offset="1" stop-color="#173b25"/>
+</linearGradient>
+<radialGradient id="soup" cx="0.42" cy="0.35" r="0.8">
+<stop offset="0" stop-color="#ffc25a"/>
+<stop offset="0.5" stop-color="#f08a2c"/>
+<stop offset="1" stop-color="#c9531a"/>
+</radialGradient>
+<radialGradient id="moonGlow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#fff6d8" stop-opacity="0.5"/>
+<stop offset="1" stop-color="#fff6d8" stop-opacity="0"/>
+</radialGradient>
+</defs>
+
+<rect width="1920" height="1080" fill="url(#sky)"/>
+
+<circle cx="300" cy="210" r="240" fill="url(#moonGlow)"/>
+<circle cx="300" cy="210" r="108" fill="#f4ecc6"/>
+<circle cx="268" cy="184" r="22" fill="#e6dcae" opacity="0.6"/>
+<circle cx="332" cy="236" r="15" fill="#e6dcae" opacity="0.6"/>
+<circle cx="316" cy="170" r="11" fill="#e6dcae" opacity="0.5"/>
+
+<g fill="#ffffff">
+<circle cx="540" cy="120" r="3"/><circle cx="700" cy="220" r="2"/><circle cx="880" cy="90" r="3.2"/>
+<circle cx="1080" cy="180" r="2.4"/><circle cx="1260" cy="100" r="3"/><circle cx="1440" cy="220" r="2.2"/>
+<circle cx="1600" cy="120" r="3.4"/><circle cx="1760" cy="260" r="2.4"/><circle cx="1860" cy="120" r="2.6"/>
+<circle cx="620" cy="330" r="2"/><circle cx="1180" cy="320" r="2.4"/><circle cx="1700" cy="400" r="2.4"/>
+<circle cx="120" cy="430" r="2.2"/><circle cx="1500" cy="360" r="2"/><circle cx="980" cy="250" r="2.6"/>
+</g>
+
+<path d="M0 760 L300 580 L620 720 L920 540 L1240 700 L1560 560 L1920 700 L1920 1080 L0 1080 Z" fill="#0e2718"/>
+<path d="M0 860 L360 760 L760 880 L1160 770 L1560 880 L1920 800 L1920 1080 L0 1080 Z" fill="#15351e"/>
+
+<g fill="#091d11">
+<path d="M130 560 L70 720 L190 720 Z"/><path d="M130 650 L55 810 L205 810 Z"/><path d="M130 740 L40 900 L220 900 Z"/>
+</g>
+<g fill="#0b2614"><path d="M300 700 L250 820 L350 820 Z"/><path d="M300 770 L240 900 L360 900 Z"/></g>
+<g fill="#091d11">
+<path d="M1790 560 L1730 720 L1850 720 Z"/><path d="M1790 650 L1715 810 L1865 810 Z"/><path d="M1790 740 L1700 900 L1880 900 Z"/>
+</g>
+<g fill="#0b2614"><path d="M1620 700 L1570 820 L1670 820 Z"/><path d="M1620 770 L1560 900 L1680 900 Z"/></g>
+
+<rect y="915" width="1920" height="165" fill="#0a1f12"/>
+
+<g transform="translate(-820,-80)">
+<ellipse cx="1780" cy="775" rx="278" ry="165" fill="#5d3f25"/>
+<g>
+<circle cx="1668" cy="452" r="58" fill="#5e3f24"/><circle cx="1668" cy="452" r="30" fill="#8a5a33"/>
+<circle cx="1892" cy="452" r="58" fill="#5e3f24"/><circle cx="1892" cy="452" r="30" fill="#8a5a33"/>
+<circle cx="1780" cy="560" r="148" fill="#6f4c2e"/>
+<ellipse cx="1780" cy="612" rx="98" ry="82" fill="#c89c6d"/>
+<path d="M1702 486 L1750 500" stroke="#3a2414" stroke-width="11" stroke-linecap="round"/>
+<path d="M1858 486 L1810 500" stroke="#3a2414" stroke-width="11" stroke-linecap="round"/>
+<circle cx="1726" cy="522" r="15" fill="#160d07"/><circle cx="1834" cy="522" r="15" fill="#160d07"/>
+<circle cx="1731" cy="517" r="5" fill="#ffffff"/><circle cx="1839" cy="517" r="5" fill="#ffffff"/>
+<ellipse cx="1780" cy="572" rx="31" ry="23" fill="#241710"/>
+<path d="M1780 595 L1780 616" stroke="#3a2414" stroke-width="6" stroke-linecap="round"/>
+<path d="M1734 632 Q1780 700 1826 632 Q1806 672 1780 672 Q1754 672 1734 632 Z" fill="#3a2418"/>
+<ellipse cx="1780" cy="658" rx="26" ry="14" fill="#d9655f"/>
+<path d="M1748 632 L1760 648 L1772 632 Z" fill="#ffffff"/><path d="M1812 632 L1800 648 L1788 632 Z" fill="#ffffff"/>
+</g>
+<path d="M1535 758 C1545 905 1650 988 1780 988 C1910 988 2015 905 2025 758 Z" fill="#2a2a31"/>
+<path d="M1545 770 C1556 895 1640 968 1720 975 C1640 940 1590 850 1580 770 Z" fill="#37373f"/>
+<ellipse cx="1780" cy="755" rx="245" ry="58" fill="#3a3a44"/>
+<ellipse cx="1780" cy="755" rx="215" ry="46" fill="url(#soup)"/>
+<path d="M1525 740 q-44 18 -8 60" fill="none" stroke="#2a2a31" stroke-width="22" stroke-linecap="round"/>
+<path d="M2035 740 q44 18 8 60" fill="none" stroke="#2a2a31" stroke-width="22" stroke-linecap="round"/>
+<path d="M1660 988 l-18 46 l46 0 Z" fill="#23232a"/><path d="M1780 992 l-22 50 l44 0 Z" fill="#23232a"/><path d="M1900 988 l18 46 l-46 0 Z" fill="#23232a"/>
+<ellipse cx="1720" cy="748" rx="40" ry="14" fill="#ffce6e" opacity="0.7"/>
+<circle cx="1690" cy="760" r="11" fill="#ffd98a" opacity="0.85"/><circle cx="1760" cy="742" r="8" fill="#ffd98a" opacity="0.85"/>
+<circle cx="1840" cy="758" r="9" fill="#ffd98a" opacity="0.85"/><circle cx="1882" cy="748" r="6" fill="#ffe7a8" opacity="0.85"/>
+<path d="M1700 752 L1690 700 L1714 700 Z" fill="#ef7d2b"/>
+<path d="M1690 700 q12 -26 36 -14 q-8 18 -36 14 Z" fill="#3fae4a"/>
+<ellipse cx="1858" cy="742" rx="30" ry="16" fill="#e7d8b4"/><ellipse cx="1858" cy="734" rx="22" ry="13" fill="#b6603c"/>
+<path d="M1808 760 q34 -30 64 -6 q-34 8 -64 6 Z" fill="#cfd9dd" opacity="0.9"/>
+<g stroke="#ffffff" stroke-linecap="round" fill="none">
+<path d="M1700 745 C1664 690 1742 656 1700 600 C1662 548 1736 512 1706 470" stroke-width="24" opacity="0.1"/>
+<path d="M1800 745 C1838 692 1762 656 1804 604 C1842 556 1772 520 1808 478" stroke-width="22" opacity="0.09"/>
+<path d="M1862 752 C1892 706 1834 676 1872 632" stroke-width="18" opacity="0.08"/>
+</g>
+<path d="M1560 700 C1500 720 1500 770 1572 772 C1612 772 1622 740 1600 718 Z" fill="#6a4829"/>
+<ellipse cx="1576" cy="766" rx="34" ry="22" fill="#7d5836"/>
+<path d="M1556 760 l8 16 M1576 762 l4 18 M1596 758 l0 18" stroke="#4a3320" stroke-width="4" stroke-linecap="round"/>
+<path d="M1990 690 C2050 706 2052 760 1980 768 C1942 770 1930 736 1956 712 Z" fill="#6a4829"/>
+<ellipse cx="1978" cy="762" rx="34" ry="22" fill="#7d5836"/>
+<path d="M1960 758 l-6 16 M1980 760 l-2 18 M2000 756 l2 18" stroke="#4a3320" stroke-width="4" stroke-linecap="round"/>
+<path d="M1960 712 L2052 588" stroke="#8a5a2c" stroke-width="20" stroke-linecap="round"/>
+<path d="M2052 588 a26 26 0 1 0 0.1 0" fill="none" stroke="#a9743a" stroke-width="16"/>
+<path d="M1600 1010 C1600 928 1652 906 1662 846 C1682 898 1702 886 1722 824 C1742 896 1772 868 1782 804 C1798 872 1828 888 1844 830 C1864 894 1890 902 1910 856 C1926 912 1962 936 1962 1010 Z" fill="#ff7d22"/>
+<path d="M1648 1010 C1648 944 1688 928 1700 880 C1716 922 1746 916 1758 866 C1774 920 1808 916 1822 872 C1836 922 1880 936 1900 956 C1912 980 1916 994 1916 1010 Z" fill="#ffb347"/>
+<path d="M1700 1010 C1700 962 1732 948 1744 912 C1760 948 1796 944 1808 908 C1822 950 1856 970 1856 1010 Z" fill="#ffe27a"/>
+<circle cx="1640" cy="800" r="5" fill="#ffd56b"/><circle cx="1930" cy="820" r="4" fill="#ffd56b"/><circle cx="1860" cy="770" r="3.5" fill="#ffe7a8"/>
+<rect x="1620" y="1000" width="320" height="34" rx="17" fill="#3a2616" transform="rotate(-8 1780 1017)"/>
+<rect x="1640" y="1010" width="300" height="30" rx="15" fill="#4a3320" transform="rotate(7 1780 1025)"/>
+<g stroke="#ffffff" stroke-linecap="round" fill="none">
+<path d="M1736 748 C1702 700 1772 668 1738 616 C1706 568 1772 538 1748 500" stroke-width="20" opacity="0.07"/>
+</g>
+</g>
+
+<text x="960" y="170" text-anchor="middle" font-family="'Trebuchet MS', Verdana, sans-serif" font-weight="900" font-size="150" fill="#f0892b">stewy<tspan fill="#9a6a3c">bear</tspan></text>
+<text x="960" y="232" text-anchor="middle" font-family="'Trebuchet MS', Verdana, sans-serif" font-weight="700" font-size="36" letter-spacing="2" fill="#a9c2a8">cinéma · jeux · soupe sauvage</text>
+</svg>

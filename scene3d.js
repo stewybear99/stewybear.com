@@ -35,12 +35,16 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const RENDER_SCALE = 0.62; // sous-échantillonnage volontaire -> rendu « chunky » pixel
 
-const { scene, camera, interactives, flames, fireLight, bear, fireplace, bearSpots, pouf, popcorn, deskHeadset } =
+const { scene, camera, interactives, flames, fireLight, bear, fireplace, bearSpots, pouf, popcorn, deskHeadset, moon, phone } =
   buildScene(THREE);
 
 // Position d'origine du popcorn (au sol près du pouf), pour l'y reposer
 // quand Stewy ne le tient plus.
 const popcornHome = popcorn.position.clone();
+
+// Position + orientation d'origine du téléphone (coin de la table d'échecs),
+// pour l'y reposer quand Stewy le lâche.
+const phoneHome = { pos: phone.position.clone(), rot: phone.rotation.clone() };
 
 // La cheminée devient cliquable (easter egg du mini-jeu), sans entrer dans
 // `interactives` (qui reste les 3 objets-réseaux testés dans room.test.mjs).
@@ -53,7 +57,17 @@ pouf.userData.name = "letterboxd";
 pouf.userData.label = "Letterboxd";
 pouf.traverse((o) => (o.userData.root = pouf));
 
-const clickTargets = interactives.concat([fireplace, pouf]);
+// La lune (fenêtre, mur gauche) lance le mini-jeu 2D « combat sur la Lune ».
+moon.userData.name = "moon";
+moon.userData.label = "Lune";
+moon.traverse((o) => (o.userData.root = moon));
+
+// Le téléphone (sur la table d'échecs) copie le Supercell ID au clic.
+phone.userData.name = "supercell";
+phone.userData.label = "Supercell ID";
+phone.traverse((o) => (o.userData.root = phone));
+
+const clickTargets = interactives.concat([fireplace, pouf, moon, phone]);
 
 /* =========================================================
    Stewy se déplace vers l'objet survolé (concept du site 2D)
@@ -76,6 +90,8 @@ let falling = false; // chute dans le foyer (easter egg)
 let prevTarget = bearTarget;
 let sitTime = 0;
 let holdingPopcorn = false;
+let phoneWanted = false; // vrai tant qu'on survole le Supercell ID (Stewy va prendre le téléphone)
+let holdingPhone = false;
 
 function grabPopcorn() {
   holdingPopcorn = true;
@@ -92,6 +108,23 @@ function releasePopcorn() {
   popcorn.rotation.set(0, 0, 0);
 }
 
+// Stewy prend le téléphone : il passe dans ses pattes, écran tourné vers son
+// visage (le visage est sur -z ; on incline le téléphone pour qu'il le regarde).
+function grabPhone() {
+  holdingPhone = true;
+  bear.add(phone);
+  phone.position.set(0, 1.45, -0.72);
+  phone.rotation.set(1.3, 0, 0);
+}
+
+function releasePhone() {
+  if (!holdingPhone) return;
+  holdingPhone = false;
+  scene.add(phone); // reposé sur le coin de la table d'échecs
+  phone.position.copy(phoneHome.pos);
+  phone.rotation.copy(phoneHome.rot);
+}
+
 // Rougissement + sueur croissants quand Stewy a trop chaud (niveau 0..4).
 function setHeat(level) {
   const r = level * 0.18;
@@ -101,6 +134,7 @@ function setHeat(level) {
 
 window.__bear3d = {
   react(state) {
+    phoneWanted = false; // par défaut : Stewy ne cherche pas le téléphone
     // Discord : Stewy enfile le casque une fois lancé vers le bureau
     if (state === "wearing-headset") {
       if (headset) headset.visible = true;
@@ -136,10 +170,13 @@ window.__bear3d = {
 
     setHeat(0);
     if (state === "letterboxd") bearTarget = bearSpots.letterboxd;
-    else if (state === "youtube" || state === "steam" || state === "discord" || state === "desk")
+    else if (state === "youtube" || state === "steam" || state === "discord" || state === "desk" || state === "github")
       bearTarget = bearSpots.desk;
     else if (state === "chess") bearTarget = bearSpots.chess;
-    else if (state === "idle") bearTarget = bearSpots.idle;
+    else if (state === "supercell") {
+      bearTarget = bearSpots.phone; // il va près de la table prendre son téléphone
+      phoneWanted = true;
+    } else if (state === "idle") bearTarget = bearSpots.idle;
   },
 };
 
@@ -156,9 +193,10 @@ const WALK_SPEED = 5.2; // unités/seconde
 let walkPhase = 0;
 
 function updateBear(dt, t) {
-  // Changement de destination : il lâche le popcorn et on remet le chrono d'assise à zéro.
+  // Changement de destination : il lâche le popcorn / le téléphone et on remet le chrono d'assise à zéro.
   if (bearTarget !== prevTarget) {
     releasePopcorn();
+    releasePhone();
     sitTime = 0;
     prevTarget = bearTarget;
   }
@@ -214,6 +252,16 @@ function updateBear(dt, t) {
       limbs.armL.rotation.x += (armPose - limbs.armL.rotation.x) * k;
       limbs.armR.rotation.x += (armPose - limbs.armR.rotation.x) * k;
       if (sitTime >= 5 && !holdingPopcorn) grabPopcorn();
+    } else if (phoneWanted) {
+      // Arrivé près de la table : il prend le téléphone et le tient devant lui pour le regarder.
+      if (!holdingPhone) grabPhone();
+      const k = Math.min(1, 6 * dt);
+      limbs.legL.rotation.x *= 0.8;
+      limbs.legR.rotation.x *= 0.8;
+      // bras levés vers l'avant pour tenir le téléphone à hauteur du visage
+      limbs.armL.rotation.x += (1.2 - limbs.armL.rotation.x) * k;
+      limbs.armR.rotation.x += (1.2 - limbs.armR.rotation.x) * k;
+      bear.position.y = Math.sin(t * 1.6) * 0.04;
     } else {
       limbs.legL.rotation.x *= 0.8;
       limbs.legR.rotation.x *= 0.8;
@@ -393,6 +441,14 @@ function frame() {
     const t = performance.now() / 1000;
     const dt = Math.min(t - lastT, 0.05); // borne le pas (onglet ralenti)
     lastT = t;
+    // Optimisation : quand un overlay/jeu plein écran est ouvert (cheminée, donjon
+    // de la Lune, bureau…), on « décharge » le hub 3D : on ne met plus à jour ni ne
+    // redessine la scène WebGL. La dernière image reste affichée (preserveDrawingBuffer)
+    // et tout le budget CPU/GPU va au mini-jeu 2D. On reprend la boucle à la fermeture.
+    if (overlayOpen()) {
+      window.__stewy3dReady = true;
+      return;
+    }
     updateScene({ flames, fireLight, bear }, t, Math.random());
     updateBear(dt, t); // Stewy marche vers l'objet survolé
     controls.target.lerp(desiredTarget, AIM_LERP); // la caméra glisse vers l'endroit survolé
@@ -414,6 +470,7 @@ function frame() {
       falling,
       sit: +sitTime.toFixed(1),
       hold: holdingPopcorn,
+      holdPhone: holdingPhone,
       deskHs: !!(deskHeadset && deskHeadset.visible),
     };
   } catch (e) {
