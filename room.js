@@ -291,6 +291,9 @@ export function buildScene(THREE) {
       box(0.4, 0.7, 0.18, bookColors[(row + i) % bookColors.length], 0.12, 1.1 + row * 1.2, -0.9 + i * 0.42, shelf, { cast: false });
     }
   }
+  // Boîtier de jeu « GBM » posé sur l'étagère du bas (indice : la biblio lance le jeu 3D).
+  box(0.42, 0.62, 0.07, C.ink, 0.2, 0.55, 0.7, shelf, { cast: false });
+  box(0.34, 0.5, 0.04, C.fire2, 0.24, 0.58, 0.72, shelf, { cast: false, emissive: C.fire1, emissiveIntensity: 0.25 });
 
   // Plante (déco)
   const plant = new THREE.Group();
@@ -374,7 +377,7 @@ export function buildScene(THREE) {
     fire: { pos: [0, 0, -3.7], look: [0, 1.2, -4.8] }, // devant le foyer (easter egg)
   };
 
-  return { scene, camera, interactives, flames, fireLight, bear, fireplace: fp, bearSpots, pouf, popcorn, deskHeadset, moon: moonGroup, phone };
+  return { scene, camera, interactives, flames, fireLight, bear, fireplace: fp, bearSpots, pouf, popcorn, deskHeadset, moon: moonGroup, phone, shelf };
 }
 
 /**

@@ -3002,3 +3002,739 @@ button {
   .scene { animation: sceneReveal 0.001ms ease 1.6s forwards; }
   .firelight { opacity: 0.95; }
 }
+
+/* =========================================================
+   Bibliothèque : vue zoom + CD (lanceur du jeu 3D)
+   ========================================================= */
+.shelf-view {
+  position: absolute;
+  inset: 0;
+  z-index: 37;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 122, 26, 0.16), transparent 46%),
+    rgba(9, 7, 13, 0.95);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.06);
+  transition: opacity 220ms steps(3), transform 260ms steps(3);
+}
+.shelf-view[aria-hidden="false"] { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+.sv-close {
+  position: absolute;
+  top: clamp(0.8rem, 2.4vw, 1.3rem);
+  left: clamp(0.8rem, 2.4vw, 1.3rem);
+  z-index: 3;
+  min-height: 2.4rem;
+  padding: 8px 12px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+.sv-close:hover,
+.sv-close:focus-visible { outline: none; background: var(--cream); color: var(--ink); }
+
+.sv-scene { display: grid; justify-items: center; gap: clamp(12px, 3vw, 22px); text-align: center; }
+.sv-title {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.8rem, 3.4vw, 1.2rem);
+  color: var(--fire-3);
+}
+.sv-rack { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; }
+.sv-cd {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 4px solid var(--outline);
+  background: rgba(20, 16, 22, 0.92);
+  color: var(--cream);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.5);
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.sv-cd:hover,
+.sv-cd:focus-visible { outline: none; transform: translateY(-3px); filter: brightness(1.12); }
+.sv-cd-disc {
+  width: clamp(72px, 18vw, 110px);
+  height: clamp(72px, 18vw, 110px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #120c08 0 16%, transparent 17%),
+    conic-gradient(from 0deg, #ff7a1a, #ffb24d, #d8430f, #ffe08a, #ff7a1a);
+  box-shadow: inset 0 0 0 3px #0c0a10, 0 0 18px rgba(255, 122, 26, 0.45);
+}
+.sv-cd-label { font-family: "Press Start 2P", monospace; font-size: clamp(0.7rem, 2.6vw, 0.95rem); color: var(--fire-3); line-height: 1.5; }
+.sv-cd-label small { font-family: inherit; font-size: 0.62em; color: rgba(255, 233, 192, 0.7); }
+.sv-hint { margin: 0; color: rgba(255, 233, 192, 0.6); font-size: clamp(0.72rem, 2.6vw, 0.9rem); }
+
+/* =========================================================
+   Jeu 3D « Grand Bear Mafia »
+   ========================================================= */
+.gbm-game {
+  position: absolute;
+  inset: 0;
+  z-index: 38;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: clamp(0.6rem, 2.5vw, 1.4rem);
+  background: rgba(4, 4, 8, 0.99);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms steps(3);
+}
+.gbm-game[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
+
+.gbm-close {
+  position: absolute;
+  top: clamp(0.7rem, 2.2vw, 1.2rem);
+  right: clamp(0.7rem, 2.2vw, 1.2rem);
+  z-index: 6;
+  min-width: 2.3rem;
+  min-height: 2.3rem;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.gbm-close:hover,
+.gbm-close:focus-visible { outline: none; background: var(--cream); color: var(--ink); }
+
+.gbm-stage {
+  position: relative;
+  width: min(96vw, 52rem);
+  aspect-ratio: 16 / 10;
+  max-height: 80vh;
+}
+.gbm-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  border: 5px solid #2a2740;
+  box-shadow: 0 0 0 3px #0c0a10, 0 18px 40px rgba(0, 0, 0, 0.6);
+  background: #10131c;
+}
+
+/* HUD par-dessus le canevas */
+.gbm-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: "Press Start 2P", monospace;
+  color: var(--cream);
+}
+.gbm-hud[hidden] { display: none; }
+.gbm-hud-top {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.gbm-stars { font-size: clamp(0.85rem, 3vw, 1.3rem); color: var(--fire-3); letter-spacing: 2px; text-shadow: 2px 2px 0 #000; }
+.gbm-cash { font-size: clamp(0.7rem, 2.4vw, 1rem); color: #9be89b; text-shadow: 2px 2px 0 #000; }
+.gbm-heist {
+  position: absolute;
+  left: 50%;
+  bottom: 54px;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(60%, 18rem);
+}
+.gbm-heist[hidden] { display: none; }
+.gbm-heist-label { font-size: 0.7rem; color: var(--fire-3); text-shadow: 2px 2px 0 #000; }
+.gbm-heist-bar { width: 100%; height: 14px; border: 3px solid var(--outline); background: rgba(0, 0, 0, 0.6); }
+.gbm-heist-fill { display: block; height: 100%; width: 0%; background: var(--fire-2); transition: width 80ms linear; }
+.gbm-hint-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: 90%;
+  text-align: center;
+  font-size: clamp(0.55rem, 2vw, 0.72rem);
+  color: rgba(255, 233, 192, 0.8);
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Menus du jeu (départ, pause, fin) */
+.gbm-menu {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  text-align: center;
+  background: rgba(6, 6, 12, 0.93);
+  color: var(--cream);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+}
+.gbm-menu[hidden] { display: none; }
+.gbm-title {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.9rem, 4.2vw, 1.5rem);
+  color: var(--fire-3);
+  line-height: 1.4;
+}
+.gbm-over-title { color: #ff5b4d; }
+.gbm-sub { margin: 0; color: rgba(255, 233, 192, 0.75); font-size: clamp(0.78rem, 3vw, 1rem); }
+.gbm-over-msg { margin: 0; color: rgba(255, 233, 192, 0.85); font-size: clamp(0.78rem, 3vw, 1rem); }
+.gbm-controls { display: grid; gap: 3px; margin-top: 6px; color: rgba(255, 233, 192, 0.6); font-size: clamp(0.68rem, 2.6vw, 0.85rem); }
+.gbm-controls p { margin: 0; }
+.gbm-menu button {
+  padding: 10px 20px;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.gbm-play, .gbm-retry, .gbm-resume { background: var(--fire-2) !important; color: #2a1000 !important; border-color: var(--fire-0) !important; }
+.gbm-menu button:hover,
+.gbm-menu button:focus-visible { outline: none; filter: brightness(1.12); }
+
+.gbm-foot { margin: 0; color: rgba(255, 233, 192, 0.55); font-size: clamp(0.6rem, 2.2vw, 0.8rem); text-align: center; }
+
+/* =========================================================
+   Jeu « La Revanche de l'Ours » (.lro-*) — calqué sur .gbm-*
+   ========================================================= */
+.lro-game {
+  position: absolute;
+  inset: 0;
+  z-index: 38;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: clamp(0.6rem, 2.5vw, 1.4rem);
+  background: rgba(4, 6, 4, 0.99);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms steps(3);
+}
+.lro-game[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
+
+.lro-close {
+  position: absolute;
+  top: clamp(0.7rem, 2.2vw, 1.2rem);
+  right: clamp(0.7rem, 2.2vw, 1.2rem);
+  z-index: 6;
+  min-width: 2.3rem;
+  min-height: 2.3rem;
+  border: 3px solid var(--outline);
+  background: rgba(16, 22, 16, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.lro-close:hover,
+.lro-close:focus-visible { outline: none; background: var(--cream); color: var(--ink); }
+
+.lro-stage {
+  position: relative;
+  width: min(96vw, 52rem);
+  aspect-ratio: 16 / 10;
+  max-height: 80vh;
+}
+.lro-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  border: 5px solid #243a24;
+  box-shadow: 0 0 0 3px #0a100a, 0 18px 40px rgba(0, 0, 0, 0.6);
+  background: #9fc6e0;
+  transition: border-color 90ms linear;
+}
+
+/* Réticule de visée (vue 1re personne) */
+.lro-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Press Start 2P", monospace;
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 4px #000, 1px 1px 0 #000;
+  pointer-events: none;
+}
+.lro-crosshair[hidden] { display: none; }
+
+/* HUD par-dessus le canevas */
+.lro-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: "Press Start 2P", monospace;
+  color: var(--cream);
+}
+.lro-hud[hidden] { display: none; }
+.lro-hud-top {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.lro-hp {
+  width: clamp(7rem, 28vw, 12rem);
+  height: 16px;
+  border: 3px solid var(--outline);
+  background: rgba(0, 0, 0, 0.55);
+}
+.lro-hp-fill { display: block; height: 100%; width: 100%; background: #5fce5f; transition: width 120ms linear; }
+.lro-stats { display: flex; gap: 12px; align-items: center; }
+.lro-ammo { font-size: clamp(0.7rem, 2.4vw, 1rem); color: #ffe07a; text-shadow: 2px 2px 0 #000; }
+.lro-ammo[hidden] { display: none; }
+.lro-kills { font-size: clamp(0.7rem, 2.4vw, 1rem); color: #cfe6ff; text-shadow: 2px 2px 0 #000; }
+.lro-stealth { font-size: clamp(0.7rem, 2.4vw, 1rem); color: #8fe08f; text-shadow: 2px 2px 0 #000; }
+.lro-stealth[hidden] { display: none; }
+
+.lro-boss {
+  position: absolute;
+  left: 50%;
+  top: 44px;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(70%, 22rem);
+}
+.lro-boss[hidden] { display: none; }
+.lro-boss-label { font-size: 0.62rem; color: #ff6a5a; text-shadow: 2px 2px 0 #000; letter-spacing: 1px; }
+.lro-boss-bar { width: 100%; height: 14px; border: 3px solid var(--outline); background: rgba(0, 0, 0, 0.6); }
+.lro-boss-fill { display: block; height: 100%; width: 100%; background: #d11f1f; transition: width 120ms linear; }
+
+.lro-hint-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: 90%;
+  text-align: center;
+  font-size: clamp(0.55rem, 2vw, 0.72rem);
+  color: rgba(255, 233, 192, 0.82);
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Menus du jeu (départ, pause, fin) */
+.lro-menu {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  text-align: center;
+  background: rgba(4, 8, 4, 0.93);
+  color: var(--cream);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+}
+.lro-menu[hidden] { display: none; }
+.lro-title {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.9rem, 4.2vw, 1.5rem);
+  color: var(--fire-3);
+  line-height: 1.4;
+}
+.lro-over-title { color: #ff5b4d; }
+.lro-over-title.lro-win-title { color: #6bd86b; }
+.lro-sub { margin: 0; color: rgba(255, 233, 192, 0.75); font-size: clamp(0.78rem, 3vw, 1rem); }
+.lro-over-msg { margin: 0; color: rgba(255, 233, 192, 0.85); font-size: clamp(0.78rem, 3vw, 1rem); }
+.lro-controls { display: grid; gap: 3px; margin-top: 6px; color: rgba(255, 233, 192, 0.6); font-size: clamp(0.68rem, 2.6vw, 0.85rem); }
+.lro-controls p { margin: 0; }
+.lro-menu button {
+  padding: 10px 20px;
+  border: 3px solid var(--outline);
+  background: rgba(16, 22, 16, 0.9);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.lro-play, .lro-retry, .lro-resume { background: var(--fire-2) !important; color: #2a1000 !important; border-color: var(--fire-0) !important; }
+.lro-menu button:hover,
+.lro-menu button:focus-visible { outline: none; filter: brightness(1.12); }
+
+.lro-foot { margin: 0; color: rgba(255, 233, 192, 0.55); font-size: clamp(0.6rem, 2.2vw, 0.8rem); text-align: center; }
+
+/* =========================================================
+   Cinématique d'ouverture : Stewy + jaquette + bulle de pensée
+   ========================================================= */
+.gbm-cine {
+  position: absolute;
+  inset: 0;
+  z-index: 39; /* au-dessus de l'overlay du jeu (38) pendant la transition */
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 60%, rgba(255, 122, 26, 0.14), transparent 55%),
+    rgba(9, 7, 13, 0.97);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms steps(3);
+}
+.gbm-cine[aria-hidden="false"] { opacity: 1; pointer-events: auto; }
+
+.cine-stage {
+  position: relative;
+  width: min(92vw, 40rem);
+  height: min(80vh, 34rem);
+}
+
+/* --- Stewy (ours dessiné en CSS, cubique/arrondi) --- */
+.cine-bear {
+  position: absolute;
+  left: 6%;
+  bottom: 0;
+  width: 230px;
+  height: 300px;
+  transform: translateY(40px);
+  opacity: 0;
+}
+.gbm-cine.is-playing .cine-bear { animation: cineBearIn 0.5s ease 0.05s forwards; }
+@keyframes cineBearIn { to { transform: translateY(0); opacity: 1; } }
+
+.cb-head {
+  position: absolute;
+  left: 35px;
+  top: 40px;
+  width: 130px;
+  height: 118px;
+  background: #8a5a30;
+  border-radius: 30px;
+  box-shadow: inset 0 -10px 0 rgba(0, 0, 0, 0.12);
+}
+.cb-ear {
+  position: absolute;
+  top: 24px;
+  width: 52px;
+  height: 52px;
+  background: #6e4422;
+  border-radius: 50%;
+}
+.cb-ear.left { left: 22px; }
+.cb-ear.right { left: 156px; }
+.cb-eye { position: absolute; top: 78px; width: 16px; height: 18px; background: #140f0b; border-radius: 50%; }
+.cb-eye.left { left: 70px; }
+.cb-eye.right { left: 122px; }
+.cb-muzzle {
+  position: absolute;
+  left: 74px;
+  top: 100px;
+  width: 52px;
+  height: 38px;
+  background: #d7a166;
+  border-radius: 22px;
+}
+.cb-nose { position: absolute; left: 18px; top: 8px; width: 16px; height: 11px; background: #140f0b; border-radius: 8px; }
+.cb-body {
+  position: absolute;
+  left: 48px;
+  top: 150px;
+  width: 134px;
+  height: 150px;
+  background: #8a5a30;
+  border-radius: 34px 34px 0 0;
+}
+.cb-arm {
+  position: absolute;
+  left: 150px;
+  top: 168px;
+  width: 60px;
+  height: 36px;
+  background: #6e4422;
+  border-radius: 18px;
+  transform: rotate(-18deg);
+  transform-origin: left center;
+}
+/* La jaquette tenue dans la patte */
+.cb-case {
+  position: absolute;
+  left: 188px;
+  top: 150px;
+  width: 70px;
+  height: 78px;
+  background: #140f0b;
+  border: 3px solid #2a2740;
+  border-radius: 6px;
+  transform: rotate(-10deg);
+  display: grid;
+  place-items: center;
+  box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.4);
+}
+.cb-case-disc {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #120c08 0 18%, transparent 19%),
+    conic-gradient(from 0deg, #ff7a1a, #ffb24d, #d8430f, #ffe08a, #ff7a1a);
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.5);
+}
+
+/* --- Bulle de pensée --- */
+.cine-bubble {
+  position: absolute;
+  right: 4%;
+  top: 4%;
+  width: 300px;
+  height: 230px;
+}
+.cb-trail {
+  position: absolute;
+  border-radius: 50%;
+  background: #fbf2dd;
+  opacity: 0;
+  animation: cineTrailIn 0.3s ease forwards;
+}
+.gbm-cine.is-playing .cb-trail.t1 { animation: cineTrailIn 0.3s ease 0.45s forwards; }
+.gbm-cine.is-playing .cb-trail.t2 { animation: cineTrailIn 0.3s ease 0.55s forwards; }
+.cb-trail.t1 { width: 26px; height: 26px; left: -28px; bottom: 6px; }
+.cb-trail.t2 { width: 44px; height: 44px; left: -2px; bottom: 28px; }
+@keyframes cineTrailIn { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.cine-cloud {
+  position: absolute;
+  inset: 0;
+  background: #fbf2dd;
+  border-radius: 48% 52% 50% 50% / 56% 56% 44% 44%;
+  box-shadow:
+    0 0 0 10px rgba(251, 242, 221, 0.35),
+    0 14px 40px rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+  transform: scale(0);
+  transform-origin: 12% 88%;
+}
+.gbm-cine.is-playing .cine-cloud { animation: cineCloudPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s forwards; }
+@keyframes cineCloudPop { to { transform: scale(1); } }
+
+/* L'« écran » dans la bulle : fond sombre + disque + titre du jeu */
+.cine-think {
+  width: 78%;
+  height: 70%;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 40%, #1c2233, #10131c);
+  border: 4px solid #2a2740;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+.cine-think-disc {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #120c08 0 16%, transparent 17%),
+    conic-gradient(from 0deg, #ff7a1a, #ffb24d, #d8430f, #ffe08a, #ff7a1a);
+  box-shadow: 0 0 16px rgba(255, 122, 26, 0.5);
+  animation: cineDiscSpin 3s linear infinite;
+}
+@keyframes cineDiscSpin { to { transform: rotate(360deg); } }
+.cine-think-title {
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  color: var(--fire-3);
+  text-align: center;
+}
+
+/* Phase de zoom : la bulle grandit jusqu'à remplir l'écran, le reste s'efface */
+.gbm-cine.is-zooming .cine-bear,
+.gbm-cine.is-zooming .cb-trail { opacity: 0; transition: opacity 200ms ease; }
+.gbm-cine.is-zooming .cine-cloud {
+  animation: none;
+  transform: scale(26);
+  border-radius: 0;
+  transition: transform 900ms cubic-bezier(0.7, 0, 0.84, 0);
+}
+.gbm-cine.is-zooming .cine-think {
+  border-width: 0;
+  border-radius: 0;
+  transition: border-radius 600ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-bear,
+  .cb-trail,
+  .cine-cloud { animation-duration: 0.001ms !important; }
+}
+
+/* ==========================================================
+   Version mobile : manettes tactiles + adaptations
+   ----------------------------------------------------------
+   Tout est conditionné à la classe `html.is-touch` (posée par
+   touch.js) pour ne rien changer sur desktop.
+   ========================================================== */
+
+/* --- Manettes des mini-jeux ------------------------------- */
+.touch-pad {
+  display: none; /* masqué par défaut ; affiché seulement sur tactile, en jeu */
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none; /* le centre laisse passer (canvas) ; seuls les boutons captent */
+}
+
+/* On n'affiche la manette que sur tactile ET pendant le jeu actif
+   (pas dans les menus / écrans de fin), via :has(). */
+html.is-touch .fire-game[aria-hidden="false"]:has(.fg-over[hidden]) .fg-touch,
+html.is-touch .moon-rogue[aria-hidden="false"]:not(:has(.mr-menu:not([hidden]))) .mr-touch,
+html.is-touch .gbm-game[aria-hidden="false"]:has(.gbm-hud:not([hidden])) .gbm-touch,
+html.is-touch .lro-game[aria-hidden="false"]:has(.lro-hud:not([hidden])) .lro-touch {
+  display: block;
+}
+
+.tc-left,
+.tc-right {
+  position: absolute;
+  bottom: clamp(0.7rem, 4vw, 2rem);
+  pointer-events: auto;
+}
+.tc-left { left: clamp(0.6rem, 3vw, 1.6rem); }
+.tc-right { right: clamp(0.6rem, 3vw, 1.6rem); }
+
+/* Groupe d'actions (boutons libres : saut, E, viser…) */
+.tc-cluster {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: 10px;
+  align-items: flex-end;
+  max-width: 44vw;
+}
+.tc-right.tc-cluster { justify-content: flex-end; }
+
+/* Croix directionnelle 3×3 (haut / gauche-droite / bas) */
+.tc-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  grid-template-areas:
+    ".  up ."
+    "l  .  r"
+    ".  dn .";
+  gap: 8px;
+}
+.tc-dpad .tc-up { grid-area: up; }
+.tc-dpad .tc-l  { grid-area: l; }
+.tc-dpad .tc-r  { grid-area: r; }
+.tc-dpad .tc-dn { grid-area: dn; }
+
+.tc-btn {
+  width: clamp(2.9rem, 12vw, 3.7rem);
+  height: clamp(2.9rem, 12vw, 3.7rem);
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--outline);
+  background: rgba(20, 16, 22, 0.78);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none; /* pas de scroll/zoom parasite sous le doigt */
+}
+.tc-btn.is-pressed {
+  background: var(--cream);
+  color: var(--ink);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.tc-big {
+  width: clamp(3.5rem, 15vw, 4.6rem);
+  height: clamp(3.5rem, 15vw, 4.6rem);
+}
+/* Bouton « viser » de La Revanche de l'Ours : surligné quand actif */
+.tc-aim.is-active {
+  background: #ffb24d;
+  color: var(--ink);
+  border-color: #ffb24d;
+}
+
+/* --- Voile « tourne ton téléphone » (jeux larges en portrait) --- */
+.rotate-hint { display: none; }
+@media (orientation: portrait) {
+  html.is-touch .gbm-game[aria-hidden="false"] ~ .rotate-hint,
+  html.is-touch .lro-game[aria-hidden="false"] ~ .rotate-hint {
+    display: grid;
+    position: fixed;
+    inset: 0;
+    z-index: 60; /* au-dessus des jeux (38) et des manettes */
+    place-items: center;
+    text-align: center;
+    padding: 2rem;
+    background: rgba(6, 5, 10, 0.97);
+    color: var(--cream);
+  }
+}
+.rotate-hint-ico {
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: rotateHintPulse 1.8s steps(8) infinite;
+}
+.rotate-hint-text {
+  margin: 0 auto;
+  max-width: 16rem;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+@keyframes rotateHintPulse {
+  0%, 100% { transform: rotate(0deg); }
+  55% { transform: rotate(90deg); }
+}
+
+/* --- Petites adaptations portrait ------------------------- */
+/* L'intro ne déborde plus sur écran étroit. */
+.intro-glow { width: min(26rem, 80vw); height: min(26rem, 80vw); }
+
+/* Cibles tactiles confortables sur la barre de réseaux du hub. */
+html.is-touch .ql { min-height: 2.75rem; }

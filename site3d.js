@@ -29,6 +29,8 @@ const I18N = {
     deskHover: "Clique pour t'installer au bureau",
     deskChoose: "Choisis sur le bureau",
     moonHover: "Clique sur la lune… si tu l'oses",
+    shelfHover: "Clique sur la bibliothèque… des jeux t'attendent",
+    shelfChoose: "Choisis un jeu",
     letterboxdAction: "Stewy se pose sur le pouf pour regarder un film sur Letterboxd.",
     youtubeAction: "Stewy s'installe au bureau pour lancer YouTube.",
     steamAction: "Stewy s'installe au bureau pour lancer Steam.",
@@ -77,6 +79,8 @@ const I18N = {
     deskHover: "Click to sit down at the desk",
     deskChoose: "Pick something on the desk",
     moonHover: "Click the moon… if you dare",
+    shelfHover: "Click the bookshelf… games await",
+    shelfChoose: "Pick a game",
     letterboxdAction: "Stewy settles on the pouf to watch a film on Letterboxd.",
     youtubeAction: "Stewy sits at the desk to open YouTube.",
     steamAction: "Stewy sits at the desk to open Steam.",
@@ -125,6 +129,8 @@ const I18N = {
     deskHover: "Haz clic para sentarte al escritorio",
     deskChoose: "Elige algo en el escritorio",
     moonHover: "Haz clic en la luna… si te atreves",
+    shelfHover: "Haz clic en la estantería… te esperan juegos",
+    shelfChoose: "Elige un juego",
     letterboxdAction: "Stewy se acomoda en el puf para ver una película en Letterboxd.",
     youtubeAction: "Stewy se sienta al escritorio para abrir YouTube.",
     steamAction: "Stewy se sienta al escritorio para abrir Steam.",
@@ -182,6 +188,10 @@ const deskView = document.querySelector(".desk-view");
 const deskClose = document.querySelector(".desk-close");
 const deskDesktop = document.querySelector(".dv-desktop");
 const deskOptions = document.querySelectorAll(".dv-option");
+const shelfView = document.querySelector(".shelf-view");
+const shelfClose = document.querySelector(".sv-close");
+const shelfCds = document.querySelectorAll(".sv-cd");
+const gbmCine = document.querySelector(".gbm-cine");
 const langButtons = document.querySelectorAll(".lang-switch button");
 
 let copyTimer;
@@ -300,6 +310,75 @@ function openMoonGame() {
       moonZoom.setAttribute("aria-hidden", "true");
     }
   }, 700);
+}
+
+/* --- Bibliothèque : vue zoom puis CD « Grand Bear Mafia » (jeu 3D) --- */
+function openShelfView() {
+  clearStateTimers();
+  activeNetwork = "idle";
+  bearReact("idle");
+  if (!shelfView) return;
+  shelfView.setAttribute("aria-hidden", "false");
+  document.body.classList.add("shelf-open");
+  if (shelfClose) shelfClose.focus();
+  if (window.Sound && Sound.enabled && Sound.steps) Sound.steps(1);
+  setLabel(t("shelfChoose"));
+}
+
+function closeShelfView() {
+  if (!shelfView) return;
+  shelfView.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("shelf-open");
+  setLabel(t("hover"));
+}
+
+let gbmCineTimers = [];
+function clearCineTimers() {
+  gbmCineTimers.forEach((id) => window.clearTimeout(id));
+  gbmCineTimers = [];
+}
+function openGBMGame() {
+  closeShelfView();
+  // Pas de cinématique disponible : on ouvre le jeu directement.
+  if (!gbmCine || !window.GBM) {
+    if (window.GBM) window.GBM.open();
+    return;
+  }
+  // Cinématique : plan sur Stewy (jaquette en main) + bulle de pensée, puis
+  // zoom dans la bulle d'où démarre le jeu.
+  clearCineTimers();
+  gbmCine.classList.remove("is-zooming", "is-playing");
+  gbmCine.setAttribute("aria-hidden", "false");
+  void gbmCine.offsetWidth; // force un reflow pour rejouer les animations
+  gbmCine.classList.add("is-playing");
+  if (window.Sound && Sound.enabled && Sound.jump) Sound.jump();
+
+  // 1) on zoome dans la bulle
+  gbmCineTimers.push(
+    window.setTimeout(() => {
+      gbmCine.classList.add("is-zooming");
+      if (window.Sound && Sound.enabled && Sound.jump) Sound.jump();
+    }, 1500)
+  );
+  // 2) le jeu s'ouvre derrière la bulle (qui remplit l'écran)…
+  gbmCineTimers.push(
+    window.setTimeout(() => {
+      if (window.GBM) window.GBM.open();
+    }, 2300)
+  );
+  // 3) …puis on retire la cinématique pour révéler le jeu.
+  gbmCineTimers.push(
+    window.setTimeout(() => {
+      gbmCine.setAttribute("aria-hidden", "true");
+      gbmCine.classList.remove("is-zooming", "is-playing");
+    }, 2650)
+  );
+}
+
+// « La Revanche de l'Ours » : ouverture directe (pas de cinématique dédiée).
+function openLROGame() {
+  closeShelfView();
+  if (window.LRO) window.LRO.open();
 }
 
 async function copyPseudo(text) {
@@ -421,9 +500,20 @@ deskOptions.forEach((option) => {
 
 if (deskClose) deskClose.addEventListener("click", closeDeskView);
 
+if (shelfClose) shelfClose.addEventListener("click", closeShelfView);
+shelfCds.forEach((cd) => {
+  cd.addEventListener("click", () => {
+    if (cd.dataset.game === "gbm") openGBMGame();
+    else if (cd.dataset.game === "lro") openLROGame();
+  });
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && document.body.classList.contains("desk-open")) {
     closeDeskView();
+  }
+  if (event.key === "Escape" && document.body.classList.contains("shelf-open")) {
+    closeShelfView();
   }
 });
 
@@ -470,8 +560,17 @@ function applyLang(next) {
   if (fgName) fgName.placeholder = t("namePlaceholder");
   if (fgSend && !fgSend.disabled) fgSend.textContent = t("sendBtn");
 
-  // Le jeu de la lune gère ses propres textes (fichier auto-contenu).
+  // Les jeux gèrent leurs propres textes (fichiers auto-contenus).
   if (window.MoonGame) window.MoonGame.setLang(lang);
+  if (window.GBM) window.GBM.setLang(lang);
+  if (window.LRO) window.LRO.setLang(lang);
+
+  if (shelfClose) {
+    shelfClose.textContent = t("back");
+    shelfClose.setAttribute("aria-label", t("ariaClose"));
+  }
+  const svTitle = document.querySelector(".sv-title");
+  if (svTitle) svTitle.textContent = t("shelfChoose");
 
   // Rafraîchit le message contextuel selon l'état courant
   if (deskView && deskView.getAttribute("aria-hidden") === "false") {
@@ -1078,6 +1177,7 @@ window.Stewy3D = {
   hover(network) {
     if (network === "desk") sendStewyToDesk();
     else if (network === "moon") setLabel(t("moonHover"));
+    else if (network === "gbm") setLabel(t("shelfHover"));
     else if (network === "supercell") hoverSupercell();
     else makeStewyHop(network);
   },
@@ -1087,6 +1187,7 @@ window.Stewy3D = {
     if (network === "desk") openDeskView();
     else if (network === "fire") pokeFire();
     else if (network === "moon") openMoonGame();
+    else if (network === "gbm") openShelfView();
     else if (network === "supercell") copySupercell();
     else openExternalUrl(network);
   },
@@ -1094,7 +1195,9 @@ window.Stewy3D = {
     return (
       fireGameOpen() ||
       (deskView && deskView.getAttribute("aria-hidden") === "false") ||
-      (window.MoonGame && window.MoonGame.isOpen())
+      (shelfView && shelfView.getAttribute("aria-hidden") === "false") ||
+      (window.MoonGame && window.MoonGame.isOpen()) ||
+      (window.GBM && window.GBM.isOpen())
     );
   },
 };

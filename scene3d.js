@@ -35,7 +35,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const RENDER_SCALE = 0.62; // sous-échantillonnage volontaire -> rendu « chunky » pixel
 
-const { scene, camera, interactives, flames, fireLight, bear, fireplace, bearSpots, pouf, popcorn, deskHeadset, moon, phone } =
+const { scene, camera, interactives, flames, fireLight, bear, fireplace, bearSpots, pouf, popcorn, deskHeadset, moon, phone, shelf } =
   buildScene(THREE);
 
 // Position d'origine du popcorn (au sol près du pouf), pour l'y reposer
@@ -67,7 +67,13 @@ phone.userData.name = "supercell";
 phone.userData.label = "Supercell ID";
 phone.traverse((o) => (o.userData.root = phone));
 
-const clickTargets = interactives.concat([fireplace, pouf, moon, phone]);
+// La bibliothèque (mur gauche) ouvre une vue zoom où l'on choisit le CD du
+// jeu 3D « Grand Bear Mafia ».
+shelf.userData.name = "gbm";
+shelf.userData.label = "Grand Bear Mafia";
+shelf.traverse((o) => (o.userData.root = shelf));
+
+const clickTargets = interactives.concat([fireplace, pouf, moon, phone, shelf]);
 
 /* =========================================================
    Stewy se déplace vers l'objet survolé (concept du site 2D)
@@ -341,6 +347,14 @@ function clampCameraCollision() {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let hovered = null;
+// Anti-rebond du survol : certaines hitboxes se touchent (ex. le téléphone posé
+// sur la table d'échecs). Le raycaster prenait alors l'objet le plus proche, qui
+// basculait d'un objet à l'autre au moindre mouvement, rejouant le son de survol
+// en boucle. On ne valide donc un changement d'objet survolé que s'il reste stable
+// pendant HOVER_DEBOUNCE_MS ; sinon les oscillations ne déclenchent rien.
+const HOVER_DEBOUNCE_MS = 110;
+let pendingRoot = null;
+let pendingSince = 0;
 let pointerPx = { x: 0, y: 0 };
 
 function updatePointer(e) {
@@ -382,19 +396,21 @@ canvas.addEventListener("pointermove", (e) => {
     );
   }
 
+  // On ne fait qu'enregistrer l'objet visé ; sa validation (et le son) attend
+  // qu'il reste stable un court instant (voir frame()).
   const root = pickRoot();
-  if (root !== hovered) {
-    hovered = root;
-    canvas.style.cursor = root ? "pointer" : "default";
-    if (window.Stewy3D) {
-      if (root) window.Stewy3D.hover(root.userData.name);
-      else window.Stewy3D.reset();
-    }
+  if (root !== pendingRoot) {
+    pendingRoot = root;
+    pendingSince = performance.now();
   }
 });
 
 // La souris quitte le canvas : la vue revient au cadrage neutre.
-canvas.addEventListener("pointerleave", () => desiredTarget.copy(DEFAULT_TARGET));
+canvas.addEventListener("pointerleave", () => {
+  desiredTarget.copy(DEFAULT_TARGET);
+  // La souris quitte la pièce : plus rien n'est survolé (validé après l'anti-rebond).
+  if (pendingRoot !== null) { pendingRoot = null; pendingSince = performance.now(); }
+});
 
 let downPos = null;
 canvas.addEventListener("pointerdown", (e) => (downPos = { x: e.clientX, y: e.clientY }));
@@ -406,12 +422,20 @@ canvas.addEventListener("pointerup", (e) => {
   if (overlayOpen()) return;
   updatePointer(e);
   const root = pickRoot();
-  if (root && window.Stewy3D) window.Stewy3D.activate(root.userData.name);
+  if (root && window.Stewy3D) {
+    // Tactile : pas de survol préalable, donc on déclenche d'abord la réaction de
+    // Stewy (déplacement + label) avant l'action, pour un retour visuel au doigt.
+    if (e.pointerType === "touch") window.Stewy3D.hover(root.userData.name);
+    window.Stewy3D.activate(root.userData.name);
+  }
 });
 
 /* =========================================================
    Redimensionnement (robuste : ResizeObserver)
    ========================================================= */
+const BASE_FOV = 55; // champ vertical de référence (paysage / desktop)
+const BASE_ASPECT = 1.3; // au-delà, FOV inchangé ; en-dessous (portrait) on l'élargit
+
 function resize() {
   const w = canvas.clientWidth || canvas.parentElement.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || canvas.parentElement.clientHeight || window.innerHeight;
@@ -419,6 +443,17 @@ function resize() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5) * RENDER_SCALE);
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
+  // En portrait (téléphone tenu droit), l'écran est étroit : on élargit le champ
+  // vertical pour conserver à peu près le champ HORIZONTAL d'un écran large, afin
+  // que toute la pièce (objets de gauche à droite) reste visible. Plafonné pour
+  // éviter une distorsion « fish-eye ».
+  if (camera.aspect < BASE_ASPECT) {
+    const baseHalf = Math.tan((BASE_FOV * Math.PI) / 180 / 2);
+    const fov = (2 * Math.atan((baseHalf * BASE_ASPECT) / camera.aspect) * 180) / Math.PI;
+    camera.fov = Math.min(fov, 100);
+  } else {
+    camera.fov = BASE_FOV;
+  }
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resize);
@@ -441,6 +476,18 @@ function frame() {
     const t = performance.now() / 1000;
     const dt = Math.min(t - lastT, 0.05); // borne le pas (onglet ralenti)
     lastT = t;
+
+    // Survol stabilisé : on n'applique le changement (label, réaction de Stewy,
+    // son) qu'une fois l'objet visé resté le même assez longtemps. Les bascules
+    // rapides entre deux hitboxes voisines ne déclenchent donc plus rien.
+    if (pendingRoot !== hovered && performance.now() - pendingSince >= HOVER_DEBOUNCE_MS) {
+      hovered = pendingRoot;
+      canvas.style.cursor = hovered ? "pointer" : "default";
+      if (window.Stewy3D) {
+        if (hovered) window.Stewy3D.hover(hovered.userData.name);
+        else window.Stewy3D.reset();
+      }
+    }
     // Optimisation : quand un overlay/jeu plein écran est ouvert (cheminée, donjon
     // de la Lune, bureau…), on « décharge » le hub 3D : on ne met plus à jour ni ne
     // redessine la scène WebGL. La dernière image reste affichée (preserveDrawingBuffer)

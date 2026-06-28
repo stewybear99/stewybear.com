@@ -39,8 +39,32 @@
         image-rendering: pixelated; /* rendu volontairement « chunky » pour garder l'esprit pixel */
         cursor: default;
       }
-      /* On remonte le label contextuel pour qu'il ne chevauche pas la barre de réseaux. */
-      .label { bottom: clamp(5rem, 10vw, 6.5rem); }
+      /* Bloc du bas : on empile le label puis la barre de réseaux dans une colonne
+         ancrée en bas. Le label est ainsi toujours AU-DESSUS des boutons, même
+         quand ceux-ci passent sur plusieurs lignes (mobile). */
+      .hud-bottom {
+        position: absolute;
+        left: 50%;
+        bottom: clamp(2.4rem, 4.4vw, 3.1rem);
+        transform: translateX(-50%);
+        z-index: 12;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: min(94vw, 44rem);
+        pointer-events: none; /* seuls les boutons captent la souris */
+      }
+      /* Dans la colonne, label et nav reprennent un flux normal (plus de position absolue). */
+      .hud-bottom .label,
+      .hud-bottom .quick-links {
+        position: static;
+        transform: none;
+        left: auto;
+        bottom: auto;
+      }
+      .hud-bottom .label { width: min(100%, 26rem); }
+      .hud-bottom .quick-links { width: 100%; }
       .back2d {
         position: fixed;
         left: clamp(0.6rem, 2vw, 1.2rem);
@@ -77,13 +101,17 @@
       </section>
 
       <section class="scene" aria-label="Le salon 3D de Stewybear">
-        <!-- Label contextuel -->
-        <div class="label" aria-live="polite">
-          <span>Survole un objet de la pièce</span>
-        </div>
+        <!-- Bloc du bas : le label contextuel est empilé AU-DESSUS de la barre de
+             réseaux dans une colonne flex, pour qu'ils ne se chevauchent jamais,
+             même quand les boutons passent sur plusieurs lignes (mobile). -->
+        <div class="hud-bottom">
+          <!-- Label contextuel -->
+          <div class="label" aria-live="polite">
+            <span>Survole un objet de la pièce</span>
+          </div>
 
-        <!-- Barre de réseaux -->
-        <nav class="quick-links" aria-label="Réseaux sociaux de Stewybear">
+          <!-- Barre de réseaux -->
+          <nav class="quick-links" aria-label="Réseaux sociaux de Stewybear">
           <a class="ql letterboxd" data-link="letterboxd" href="#">
             <span class="ql-ico lb-ico" aria-hidden="true"></span>
             <span>Letterboxd</span>
@@ -112,7 +140,8 @@
             <span class="ql-ico sc-ico" aria-hidden="true"></span>
             <span>Supercell ID</span>
           </button>
-        </nav>
+          </nav>
+        </div>
       </section>
 
       <!-- Vue bureau (overlay) : YouTube / Steam / Discord -->
@@ -218,6 +247,16 @@
             </div>
           </div>
         </div>
+        <!-- Manette tactile (mobile) : gauche/droite + saut -->
+        <div class="touch-pad fg-touch" aria-hidden="true">
+          <div class="tc-cluster tc-left">
+            <button class="tc-btn" type="button" data-key="ArrowLeft" data-code="ArrowLeft" aria-label="Gauche">◄</button>
+            <button class="tc-btn" type="button" data-key="ArrowRight" data-code="ArrowRight" aria-label="Droite">►</button>
+          </div>
+          <div class="tc-cluster tc-right">
+            <button class="tc-btn tc-big" type="button" data-key="ArrowUp" data-code="ArrowUp" data-tap aria-label="Sauter">⤒</button>
+          </div>
+        </div>
         <p class="fg-hint">← → · ↑</p>
       </section>
 
@@ -281,8 +320,219 @@
           <!-- Bouton « passer » pendant une cinématique -->
           <button class="mr-cine-skip" type="button" hidden>Passer ▸</button>
         </div>
+        <!-- Manette tactile (mobile) : croix déplacement (WASD) + croix tir (flèches) -->
+        <div class="touch-pad mr-touch" aria-hidden="true">
+          <div class="tc-dpad tc-left">
+            <button class="tc-btn tc-up" type="button" data-key="w" data-code="KeyW" aria-label="Monter">▲</button>
+            <button class="tc-btn tc-l" type="button" data-key="a" data-code="KeyA" aria-label="Gauche">◄</button>
+            <button class="tc-btn tc-r" type="button" data-key="d" data-code="KeyD" aria-label="Droite">►</button>
+            <button class="tc-btn tc-dn" type="button" data-key="s" data-code="KeyS" aria-label="Descendre">▼</button>
+          </div>
+          <div class="tc-dpad tc-right">
+            <button class="tc-btn tc-up" type="button" data-key="ArrowUp" data-code="ArrowUp" aria-label="Tirer vers le haut">▲</button>
+            <button class="tc-btn tc-l" type="button" data-key="ArrowLeft" data-code="ArrowLeft" aria-label="Tirer à gauche">◄</button>
+            <button class="tc-btn tc-r" type="button" data-key="ArrowRight" data-code="ArrowRight" aria-label="Tirer à droite">►</button>
+            <button class="tc-btn tc-dn" type="button" data-key="ArrowDown" data-code="ArrowDown" aria-label="Tirer vers le bas">▼</button>
+          </div>
+        </div>
         <p class="mr-hint">ZQSD / WASD : bouger · Flèches : tirer · Échap : pause</p>
       </section>
+
+      <!-- Vue zoom sur la bibliothèque : on y choisit le CD du jeu 3D -->
+      <section class="shelf-view" aria-label="La bibliothèque de Stewybear" aria-hidden="true">
+        <button class="sv-close" type="button" aria-label="Retour au salon">‹ Retour</button>
+        <div class="sv-scene">
+          <p class="sv-title">Choisis un jeu</p>
+          <div class="sv-rack">
+            <button class="sv-cd" type="button" data-game="gbm">
+              <span class="sv-cd-disc" aria-hidden="true"></span>
+              <span class="sv-cd-label">GBM<br /><small>Grand Bear Mafia</small></span>
+            </button>
+            <button class="sv-cd" type="button" data-game="lro">
+              <span class="sv-cd-disc" aria-hidden="true"></span>
+              <span class="sv-cd-label">REVANCHE<br /><small>La Revanche de l'Ours</small></span>
+            </button>
+          </div>
+          <p class="sv-hint">Un GTA d'ours… récupère le butin, évite les flics.</p>
+        </div>
+      </section>
+
+      <!-- Cinématique d'ouverture : Stewy tient la jaquette + bulle de pensée,
+           puis on zoome dans la bulle où démarre le jeu. -->
+      <div class="gbm-cine" aria-hidden="true">
+        <div class="cine-stage">
+          <!-- Stewy, jaquette à la main -->
+          <div class="cine-bear">
+            <span class="cb-ear left"></span>
+            <span class="cb-ear right"></span>
+            <span class="cb-head">
+              <span class="cb-eye left"></span>
+              <span class="cb-eye right"></span>
+              <span class="cb-muzzle"><span class="cb-nose"></span></span>
+            </span>
+            <span class="cb-body"></span>
+            <span class="cb-arm"></span>
+            <span class="cb-case"><span class="cb-case-disc"></span></span>
+          </div>
+
+          <!-- Bulle de pensée : petits ronds + grosse bulle contenant le jeu -->
+          <div class="cine-bubble">
+            <span class="cb-trail t1"></span>
+            <span class="cb-trail t2"></span>
+            <div class="cine-cloud">
+              <div class="cine-think">
+                <span class="cine-think-disc"></span>
+                <p class="cine-think-title">GRAND BEAR MAFIA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jeu 3D « Grand Bear Mafia » -->
+      <section class="gbm-game" aria-hidden="true" aria-label="Grand Bear Mafia">
+        <button class="gbm-close" type="button" aria-label="Quitter le jeu">✕</button>
+        <div class="gbm-stage">
+          <canvas class="gbm-canvas"></canvas>
+
+          <!-- HUD (par-dessus le canevas) -->
+          <div class="gbm-hud" hidden>
+            <div class="gbm-hud-top">
+              <div class="gbm-stars" aria-label="Niveau de recherche">☆☆☆☆☆</div>
+              <div class="gbm-cash">$<span class="gbm-cash-val">0</span></div>
+            </div>
+            <div class="gbm-heist" hidden>
+              <span class="gbm-heist-label">Braquage…</span>
+              <div class="gbm-heist-bar"><span class="gbm-heist-fill"></span></div>
+            </div>
+            <p class="gbm-hint-bottom"></p>
+          </div>
+
+          <!-- Menu de départ -->
+          <div class="gbm-menu gbm-start">
+            <h2 class="gbm-title">GRAND BEAR MAFIA</h2>
+            <p class="gbm-sub">Un ours. Une ville. Des braquages.</p>
+            <button class="gbm-play" type="button">Jouer</button>
+            <div class="gbm-controls">
+              <p>ZQSD / Flèches : se déplacer</p>
+              <p>E : monter / descendre d'une voiture</p>
+              <p>Espace : braquer (dans une zone) · frein en voiture</p>
+              <p>Échap : pause</p>
+            </div>
+          </div>
+
+          <!-- Pause -->
+          <div class="gbm-menu gbm-pause" hidden>
+            <h2 class="gbm-title">Pause</h2>
+            <button class="gbm-resume" type="button">Reprendre</button>
+            <button class="gbm-quit" type="button">Quitter</button>
+          </div>
+
+          <!-- Game over / BUSTED -->
+          <div class="gbm-menu gbm-over" hidden>
+            <h2 class="gbm-title gbm-over-title">BUSTED</h2>
+            <p class="gbm-over-msg"></p>
+            <button class="gbm-retry" type="button">Rejouer</button>
+            <button class="gbm-quit2" type="button">Quitter</button>
+          </div>
+        </div>
+        <!-- Manette tactile (mobile) : croix déplacement + E voiture + braquer/frein -->
+        <div class="touch-pad gbm-touch" aria-hidden="true">
+          <div class="tc-dpad tc-left">
+            <button class="tc-btn tc-up" type="button" data-key="ArrowUp" data-code="ArrowUp" aria-label="Avancer">▲</button>
+            <button class="tc-btn tc-l" type="button" data-key="ArrowLeft" data-code="ArrowLeft" aria-label="Gauche">◄</button>
+            <button class="tc-btn tc-r" type="button" data-key="ArrowRight" data-code="ArrowRight" aria-label="Droite">►</button>
+            <button class="tc-btn tc-dn" type="button" data-key="ArrowDown" data-code="ArrowDown" aria-label="Reculer">▼</button>
+          </div>
+          <div class="tc-cluster tc-right">
+            <button class="tc-btn tc-action" type="button" data-key="e" data-code="KeyE" data-tap aria-label="Monter / descendre">E</button>
+            <button class="tc-btn tc-action tc-big" type="button" data-key=" " data-code="Space" aria-label="Braquer / frein">★</button>
+          </div>
+        </div>
+        <p class="gbm-foot">ZQSD/Flèches · E voiture · Espace braquer · Échap pause</p>
+      </section>
+
+      <!-- Jeu 3D « La Revanche de l'Ours » -->
+      <section class="lro-game" aria-hidden="true" aria-label="La Revanche de l'Ours">
+        <button class="lro-close" type="button" aria-label="Quitter le jeu">✕</button>
+        <div class="lro-stage">
+          <canvas class="lro-canvas"></canvas>
+
+          <!-- Réticule de visée (vue 1re personne) -->
+          <div class="lro-crosshair" hidden aria-hidden="true">+</div>
+
+          <!-- HUD (par-dessus le canevas) -->
+          <div class="lro-hud" hidden>
+            <div class="lro-hud-top">
+              <div class="lro-hp" aria-label="Vie"><span class="lro-hp-fill"></span></div>
+              <div class="lro-stats">
+                <span class="lro-stealth" hidden>🌿 Caché</span>
+                <span class="lro-ammo" hidden>🔫 <span class="lro-ammo-val">0</span></span>
+                <span class="lro-kills">🐾 <span class="lro-kills-val">0/0</span></span>
+              </div>
+            </div>
+            <div class="lro-boss" hidden>
+              <span class="lro-boss-label">CHEF DES CHASSEURS</span>
+              <div class="lro-boss-bar"><span class="lro-boss-fill"></span></div>
+            </div>
+            <p class="lro-hint-bottom"></p>
+          </div>
+
+          <!-- Menu de départ -->
+          <div class="lro-menu lro-start">
+            <h2 class="lro-title">LA REVANCHE DE L'OURS</h2>
+            <p class="lro-sub">Mange les chasseurs. Vole leur fusil. Bute le boss.</p>
+            <button class="lro-play" type="button">Jouer</button>
+            <div class="lro-controls">
+              <p>ZQSD / Flèches : se déplacer</p>
+              <p>Souris : regarder · Clic droit : viser (1re personne)</p>
+              <p>Clic gauche : tirer (en visée) · E : manger un chasseur</p>
+              <p>F : prendre un fusil · G : déguisement · Échap : pause</p>
+            </div>
+          </div>
+
+          <!-- Pause -->
+          <div class="lro-menu lro-pause" hidden>
+            <h2 class="lro-title">Pause</h2>
+            <button class="lro-resume" type="button">Reprendre</button>
+            <button class="lro-quit" type="button">Quitter</button>
+          </div>
+
+          <!-- Fin de partie (victoire / défaite) -->
+          <div class="lro-menu lro-over" hidden>
+            <h2 class="lro-title lro-over-title">CHASSÉ !</h2>
+            <p class="lro-over-msg"></p>
+            <button class="lro-retry" type="button">Rejouer</button>
+            <button class="lro-quit2" type="button">Quitter</button>
+          </div>
+        </div>
+        <!-- Manette tactile (mobile) : déplacement + viser/tirer (gérés par lro.js) + manger/fusil/déguisement -->
+        <div class="touch-pad lro-touch" aria-hidden="true">
+          <div class="tc-dpad tc-left">
+            <button class="tc-btn tc-up" type="button" data-key="ArrowUp" data-code="ArrowUp" aria-label="Avancer">▲</button>
+            <button class="tc-btn tc-l" type="button" data-key="ArrowLeft" data-code="ArrowLeft" aria-label="Gauche">◄</button>
+            <button class="tc-btn tc-r" type="button" data-key="ArrowRight" data-code="ArrowRight" aria-label="Droite">►</button>
+            <button class="tc-btn tc-dn" type="button" data-key="ArrowDown" data-code="ArrowDown" aria-label="Reculer">▼</button>
+          </div>
+          <div class="tc-cluster tc-right">
+            <button class="tc-btn tc-aim lro-aim" type="button" aria-label="Viser">🎯</button>
+            <button class="tc-btn tc-fire lro-fire" type="button" aria-label="Tirer">🔥</button>
+            <button class="tc-btn tc-action" type="button" data-key="e" data-code="KeyE" aria-label="Manger">🍖</button>
+            <button class="tc-btn tc-action" type="button" data-key="f" data-code="KeyF" data-tap aria-label="Prendre un fusil">F</button>
+            <button class="tc-btn tc-action" type="button" data-key="g" data-code="KeyG" data-tap aria-label="Déguisement">G</button>
+          </div>
+        </div>
+        <p class="lro-foot">ZQSD bouger · Souris viser · Clic droit viser · Clic gauche tirer · E manger</p>
+      </section>
+
+      <!-- Voile « tourne ton téléphone » : affiché en portrait sur mobile quand un
+           jeu large (GBM / LRO) est ouvert. Disparaît dès le passage en paysage. -->
+      <div class="rotate-hint" aria-hidden="true">
+        <div class="rotate-hint-inner">
+          <span class="rotate-hint-ico" aria-hidden="true">📱↻</span>
+          <p class="rotate-hint-text">Tourne ton téléphone à l'horizontale pour jouer</p>
+        </div>
+      </div>
 
       <!-- Bouton son -->
       <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Couper le son">🔊</button>
@@ -327,7 +577,10 @@
     <script src="audio.js"></script>
     <script src="leaderboard.js"></script>
     <script src="moon-rogue.js"></script>
+    <script type="module" src="gbm.js"></script>
+    <script type="module" src="lro.js"></script>
     <script src="site3d.js"></script>
     <script type="module" src="scene3d.js"></script>
+    <script src="touch.js"></script>
   </body>
 </html>
